@@ -1,0 +1,176 @@
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+  <changeSet id="1" author="mww">
+    <createTable tableName="termination">
+      <column name="id" type="integer" autoIncrement="true">
+        <constraints nullable="false" primaryKey="true" unique="true"/>
+      </column>
+      <column name="termination_id" type="varchar(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="created" type="datetime">
+        <constraints nullable="false"/>
+      </column>
+      <column name="creator_hsa_id" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="creator_name" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="hsa_id" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="organization_number" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="person_id" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="phone_number" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="status" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="2" author="mww">
+    <createTable tableName="certificate">
+      <column name="id" type="integer" autoIncrement="true">
+        <constraints nullable="false" primaryKey="true" unique="true"/>
+      </column>
+      <column name="certificate_id" type="varchar(255)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="revoked" type="boolean">
+        <constraints nullable="false"/>
+      </column>
+      <column name="xml" type="mediumtext">
+        <constraints nullable="false"/>
+      </column>
+      <column name="termination_id" type="integer">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint constraintName="fk_certificate_termination_id"
+      baseTableName="certificate" baseColumnNames="termination_id"
+      referencedTableName="termination" referencedColumnNames="id"/>
+  </changeSet>
+
+  <changeSet id="3" author="mww">
+    <createTable tableName="export">
+      <column name="total" type="integer">
+        <constraints nullable="false"/>
+      </column>
+      <column name="revoked" type="integer">
+        <constraints nullable="false"/>
+      </column>
+      <column name="password" type="varchar(255)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="termination_id" type="integer">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint constraintName="fk_export_termination_id"
+      baseTableName="export" baseColumnNames="termination_id"
+      referencedTableName="termination" referencedColumnNames="id"/>
+  </changeSet>
+
+  <changeSet id="4" author="mww">
+    <createTable tableName="certificate_text">
+      <column name="id" type="integer" autoIncrement="true">
+        <constraints nullable="false" primaryKey="true" unique="true"/>
+      </column>
+      <column name="certificate_type" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="certificate_type_version" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="xml" type="mediumtext">
+        <constraints nullable="false"/>
+      </column>
+      <column name="termination_id" type="integer">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint constraintName="fk_certificate_text_termination_id"
+      baseTableName="certificate_text" baseColumnNames="termination_id"
+      referencedTableName="termination" referencedColumnNames="id"/>
+  </changeSet>
+
+  <changeSet id="5" author="mh">
+    <addColumn tableName="export">
+      <column name="receipt_time" type="datetime">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="6" author="mh">
+    <addColumn tableName="termination">
+      <column name="email_address" type="varchar(255)" afterColumn="phone_number"
+        defaultValue="change@me.se">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="7" author="mww">
+    <createTable tableName="erase">
+      <column name="service_id" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="erased" type="boolean">
+        <constraints nullable="false"/>
+      </column>
+      <column name="termination_id" type="integer">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint constraintName="fk_erase_termination_id"
+      baseTableName="erase" baseColumnNames="termination_id"
+      referencedTableName="termination" referencedColumnNames="id"/>
+  </changeSet>
+
+  <changeSet id="8" author="mww">
+    <addColumn tableName="termination">
+      <column name="modified" type="datetime" afterColumn="created">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="9" author="mww">
+    <sql>update termination
+         set modified = created</sql>
+  </changeSet>
+
+  <changeSet id="10" author="mww">
+    <addNotNullConstraint tableName="termination" columnName="modified" columnDataType="datetime"/>
+  </changeSet>
+
+  <changeSet id="11" author="mww">
+    <addColumn tableName="export">
+      <column name="export_time" type="datetime" afterColumn="termination_id">
+        <constraints nullable="true"/>
+      </column>
+      <column name="notification_time" type="datetime" afterColumn="export_time">
+        <constraints nullable="true"/>
+      </column>
+      <column name="reminder_time" type="datetime" afterColumn="notification_time">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+  </changeSet>
+</databaseChangeLog>
