@@ -1,7 +1,0 @@
-rootProject.name = 'certificate-print-service'
-
-include 'app'
-include 'playwright-pdf-generator'
-include 'pdf-generator-api'
-include 'logging'
-

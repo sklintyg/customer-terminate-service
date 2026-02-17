@@ -1,4 +1,0 @@
-rootProject.name = 'core-stub-service'
-
-include 'app'
-

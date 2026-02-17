@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns3:forifyllnad
-  xmlns:ns2="urn:riv:clinicalprocess:healthcond:certificate:3"
-  xmlns:ns4="urn:riv:clinicalprocess:healthcond:certificate:types:3"
-  xmlns:ns3="urn:riv:clinicalprocess:healthcond:certificate:3.3">
-  <ns3:svar id="54">
-    <ns2:delsvar id="54.1">2027-01-13</ns2:delsvar>
-  </ns3:svar>
-</ns3:forifyllnad>

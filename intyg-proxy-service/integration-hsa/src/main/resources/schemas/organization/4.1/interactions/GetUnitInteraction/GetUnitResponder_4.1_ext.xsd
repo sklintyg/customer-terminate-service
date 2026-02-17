@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-
-<xs:schema xmlns:tns="urn:riv:infrastructure:directory:organization:GetUnitResponder:4.1"   xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:riv:infrastructure:directory:organization:GetUnitResponder:4.1" elementFormDefault="qualified" attributeFormDefault="unqualified" version="4.1">
-
-  <xs:element name="administrativeCareLevel" type="xs:string"/>
-
-</xs:schema>
