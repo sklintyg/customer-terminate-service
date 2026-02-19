@@ -126,6 +126,8 @@ class UploadPackageToSjutTest {
 
   @Test
   void shallUploadFileToSjutWithReceiptUrl() throws InterruptedException {
+    mockSjut.takeRequest();
+
     mockSjut.enqueue(new MockResponse()
         .setBody("Package has been uploaded!")
     );
