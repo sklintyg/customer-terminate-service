@@ -35,7 +35,7 @@ class TerminationEntityMapperTest {
 
     @Test
     void shallMapTerminationId() {
-      assertEquals(DEFAULT_TERMINATION_ID, toEntity(termination).getTerminationId());
+      assertEquals(termination.terminationId().id(), toEntity(termination).getTerminationId());
     }
 
     @Test
@@ -60,12 +60,12 @@ class TerminationEntityMapperTest {
 
     @Test
     void shallMapCreated() {
-      assertEquals(DEFAULT_CREATED, toEntity(termination).getCreated());
+      assertEquals(termination.created(), toEntity(termination).getCreated());
     }
 
     @Test
     void shallMapModified() {
-      assertEquals(DEFAULT_MODIFIED, toEntity(termination).getModified());
+      assertEquals(termination.modified(), toEntity(termination).getModified());
     }
 
     @Test

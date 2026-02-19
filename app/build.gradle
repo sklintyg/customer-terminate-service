@@ -3,6 +3,10 @@ plugins {
     alias(libs.plugins.org.springframework.boot)
 }
 
+tasks.named('bootJar') {
+    archiveFileName.set('app.jar')
+}
+
 def applicationDir = "${rootProject.projectDir}/devops/dev"
 
 dependencies {
@@ -25,8 +29,6 @@ dependencies {
     implementation 'redis.clients:jedis'
 
     compileOnly 'org.projectlombok:lombok'
-
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly 'io.netty:netty-all'

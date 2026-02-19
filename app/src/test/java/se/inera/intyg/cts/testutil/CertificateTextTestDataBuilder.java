@@ -61,7 +61,7 @@ public class CertificateTextTestDataBuilder {
     for (int i = 0; i < total; i++) {
       certificates.add(
           new CertificateTextEntity(
-              RandomGenerator.getDefault().nextLong(1, 5000),
+              null,
               DEFAULT_CERTIFICATE_TYPE + i,
               DEFAULT_CERTIFICATE_TYPE_VERSION,
               DEFAULT_XML_AS_BASE64,

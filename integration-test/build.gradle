@@ -8,6 +8,12 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-web'
 }
 
+test {
+    if (System.properties['test.profile'] != 'integration') {
+        exclude '**/*integrationtest*'
+    }
+}
+
 tasks.register('integrationTest', Test) {
     description = 'Runs integration tests.'
     group = 'verification'

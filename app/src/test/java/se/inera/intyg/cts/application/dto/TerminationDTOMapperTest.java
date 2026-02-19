@@ -2,7 +2,6 @@ package se.inera.intyg.cts.application.dto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static se.inera.intyg.cts.application.dto.TerminationDTOMapper.toDTO;
-import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.DEFAULT_CREATED;
 import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.DEFAULT_CREATOR_HSA_ID;
 import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.DEFAULT_CREATOR_NAME;
 import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.DEFAULT_HSA_ID;
@@ -10,7 +9,6 @@ import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.DEFAULT_ORG
 import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.DEFAULT_PERSON_ID;
 import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.DEFAULT_PHONE_NUMBER;
 import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.DEFAULT_STATUS;
-import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.DEFAULT_TERMINATION_ID;
 import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.defaultTermination;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +30,7 @@ class TerminationDTOMapperTest {
 
     @Test
     void shallMapTerminationId() {
-      assertEquals(DEFAULT_TERMINATION_ID, toDTO(termination).terminationId());
+      assertEquals(termination.terminationId().id(), toDTO(termination).terminationId());
     }
 
     @Test
@@ -57,7 +55,7 @@ class TerminationDTOMapperTest {
 
     @Test
     void shallMapCreated() {
-      assertEquals(DEFAULT_CREATED, toDTO(termination).created());
+      assertEquals(termination.created(), toDTO(termination).created());
     }
 
     @Test

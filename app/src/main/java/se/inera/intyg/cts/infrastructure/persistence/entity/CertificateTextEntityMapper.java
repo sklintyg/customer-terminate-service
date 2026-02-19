@@ -15,7 +15,7 @@ public class CertificateTextEntityMapper {
   public static CertificateTextEntity toEntity(CertificateText certificateText,
       TerminationEntity terminationEntity) {
     return new CertificateTextEntity(
-        0L,
+        null,
         certificateText.certificateType().type(),
         certificateText.certificateTypeVersion().version(),
         Base64.getEncoder().encodeToString(certificateText.certificateXML().xml().getBytes()),

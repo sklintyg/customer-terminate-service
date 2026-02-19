@@ -3,7 +3,6 @@ package se.inera.intyg.cts.testutil;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.UUID;
-import java.util.random.RandomGenerator;
 import se.inera.intyg.cts.application.dto.TerminationDTO;
 import se.inera.intyg.cts.domain.model.Termination;
 import se.inera.intyg.cts.domain.model.TerminationBuilder;
@@ -13,7 +12,6 @@ import se.inera.intyg.cts.infrastructure.persistence.entity.TerminationEntity;
 
 public class TerminationTestDataBuilder {
 
-  public static final Long DEFAULT_ID = RandomGenerator.getDefault().nextLong(1, 1000);
   public static final UUID DEFAULT_TERMINATION_ID = UUID.randomUUID();
   public static final LocalDateTime DEFAULT_CREATED = LocalDateTime.now();
   public static final LocalDateTime DEFAULT_MODIFIED = LocalDateTime.now();
@@ -35,7 +33,6 @@ public class TerminationTestDataBuilder {
 
   public static TerminationBuilder defaultTerminationBuilder() {
     return TerminationBuilder.getInstance()
-        .terminationId(DEFAULT_TERMINATION_ID)
         .created(DEFAULT_CREATED)
         .modified(DEFAULT_MODIFIED)
         .creatorHSAId(DEFAULT_CREATOR_HSA_ID)
@@ -66,7 +63,7 @@ public class TerminationTestDataBuilder {
 
   public static TerminationEntity defaultTerminationEntity() {
     return new TerminationEntity(
-        DEFAULT_ID,
+        null,
         DEFAULT_TERMINATION_ID,
         DEFAULT_CREATED,
         DEFAULT_MODIFIED,
@@ -85,7 +82,7 @@ public class TerminationTestDataBuilder {
 
   public static TerminationEntity defaultTerminationEntity(UUID terminationId) {
     return new TerminationEntity(
-        RandomGenerator.getDefault().nextLong(),
+        null,
         terminationId,
         DEFAULT_CREATED,
         DEFAULT_MODIFIED,
