@@ -71,7 +71,7 @@ public class CertificateTestDataBuilder {
     for (int i = 0; i < total; i++) {
       certificates.add(
           new CertificateEntity(
-              RandomGenerator.getDefault().nextLong(1, 5000),
+              null,
               UUID.randomUUID().toString(),
               i >= (total - revokeCount),
               DEFAULT_XML_AS_BASE64,

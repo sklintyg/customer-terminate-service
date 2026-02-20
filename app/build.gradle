@@ -1,5 +1,10 @@
 plugins {
-    id 'org.springframework.boot' version '3.3.4'
+    alias(libs.plugins.org.cyclonedx.bom)
+    alias(libs.plugins.org.springframework.boot)
+}
+
+tasks.named('bootJar') {
+    archiveFileName.set('app.jar')
 }
 
 def applicationDir = "${rootProject.projectDir}/devops/dev"
@@ -8,22 +13,22 @@ dependencies {
     implementation project(':domain')
     implementation project(':logging')
 
-    implementation "co.elastic.logging:logback-ecs-encoder:${logbackEcsEncoderVersion}"
-    implementation "net.javacrumbs.shedlock:shedlock-spring:${shedlockVersion}"
-    implementation "net.javacrumbs.shedlock:shedlock-provider-redis-spring:${shedlockVersion}"
-    implementation "net.lingala.zip4j:zip4j:${zip4jVersion}"
-    implementation "org.springdoc:springdoc-openapi-ui:${springDocVersion}"
-    implementation "org.springdoc:springdoc-openapi-data-rest:${springDocVersion}"
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    implementation 'net.javacrumbs.shedlock:shedlock-spring'
+    implementation 'net.javacrumbs.shedlock:shedlock-provider-redis-spring'
+    implementation 'net.lingala.zip4j:zip4j'
+    implementation 'org.springdoc:springdoc-openapi-ui'
+    implementation 'org.springdoc:springdoc-openapi-data-rest'
+
     implementation 'org.liquibase:liquibase-core'
     implementation 'redis.clients:jedis'
 
     compileOnly 'org.projectlombok:lombok'
-
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly 'io.netty:netty-all'
@@ -38,11 +43,6 @@ dependencies {
     testImplementation 'com.h2database:h2'
 }
 
-tasks.named('test') {
-    useJUnitPlatform {
-    }
-}
-
 bootRun {
     systemProperty("spring.profiles.active", "testability,dev")
     systemProperty("application.dir", "${applicationDir}")
@@ -54,8 +54,7 @@ tasks.register("appRunDebug") {
     doFirst {
         bootRun.configure {
             jvmArgs = [
-                    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=18011",
-                    "-Dlogging.config=${applicationDir}/config/logback-spring.xml"
+                    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=18011"
             ]
         }
     }
@@ -64,10 +63,5 @@ tasks.register("appRunDebug") {
 
 tasks.register("appRun") {
     println("######## Running in normal mode ########")
-    doFirst {
-        bootRun.configure {
-            jvmArgs = ["-Dlogging.config=${applicationDir}/config/logback-spring.xml"]
-        }
-    }
     finalizedBy("bootRun")
 }

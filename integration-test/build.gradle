@@ -3,9 +3,15 @@ dependencies {
     implementation project(':app')
 
     testImplementation 'io.rest-assured:rest-assured'
-    testImplementation "net.lingala.zip4j:zip4j:${zip4jVersion}"
+    testImplementation 'net.lingala.zip4j:zip4j'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-web'
+}
+
+test {
+    if (System.properties['test.profile'] != 'integration') {
+        exclude '**/*integrationtest*'
+    }
 }
 
 tasks.register('integrationTest', Test) {

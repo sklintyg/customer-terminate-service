@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static se.inera.intyg.cts.testutil.CertificateTextTestDataBuilder.certificateTextEntities;
 import static se.inera.intyg.cts.testutil.CertificateTextTestDataBuilder.certificateTexts;
 import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.defaultTermination;
+import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.defaultTerminationBuilder;
 import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.defaultTerminationEntity;
 
 import jakarta.transaction.Transactional;
@@ -39,7 +40,8 @@ class JpaCertificateTextRepositoryTest {
 
   @Test
   void shallStoreCertificateTextsForExistingTermination() {
-    terminationEntityRepository.save(terminationEntity);
+    TerminationEntity te = terminationEntityRepository.save(terminationEntity);
+    termination = defaultTerminationBuilder().terminationId(te.getTerminationId()).create();
 
     jpaCertificateTextRepository.store(termination, certificateTexts(3));
 
@@ -49,11 +51,12 @@ class JpaCertificateTextRepositoryTest {
   @Test
   @Transactional
   void shallReturnCertificateTextsForExistingTermination() {
-    terminationEntityRepository.save(terminationEntity);
+    TerminationEntity te = terminationEntityRepository.save(terminationEntity);
     TerminationEntity savedTerminationEntity = terminationEntityRepository.findByTerminationId(
         terminationEntity.getTerminationId()).get();
     certificateTextEntityRepository.saveAll(certificateTextEntities(savedTerminationEntity, 3));
 
+    termination = defaultTerminationBuilder().terminationId(te.getTerminationId()).create();
     assertEquals(3, jpaCertificateTextRepository.get(termination).size());
   }
 
@@ -64,12 +67,13 @@ class JpaCertificateTextRepositoryTest {
 
   @Test
   void shallRemoveCertificateTextsForExistingTermination() {
-    terminationEntityRepository.save(terminationEntity);
+    TerminationEntity te = terminationEntityRepository.save(terminationEntity);
     TerminationEntity savedTerminationEntity = terminationEntityRepository.findByTerminationId(
         terminationEntity.getTerminationId()).get();
 
     certificateTextEntityRepository.saveAll(certificateTextEntities(savedTerminationEntity, 3));
 
+    termination = defaultTerminationBuilder().terminationId(te.getTerminationId()).create();
     jpaCertificateTextRepository.remove(termination);
 
     assertEquals(0, jpaCertificateTextRepository.get(termination).size());

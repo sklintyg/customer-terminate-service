@@ -126,11 +126,13 @@ class UploadPackageToSjutTest {
 
   @Test
   void shallUploadFileToSjutWithReceiptUrl() throws InterruptedException {
+    mockSjut.takeRequest();
+
     mockSjut.enqueue(new MockResponse()
         .setBody("Package has been uploaded!")
     );
 
-    uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
+    uploadPackageToSjut.uploadPackage(termination, packageFile);
 
     final var requestBody = mockSjut.takeRequest().getBody().readUtf8();
     assertTrue(

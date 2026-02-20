@@ -14,7 +14,7 @@ public class TerminationEntityMapper {
 
   public static TerminationEntity toEntity(Termination termination) {
     return new TerminationEntity(
-        0L,
+        null,
         termination.terminationId().id(),
         termination.created(),
         termination.modified(),

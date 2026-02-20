@@ -14,7 +14,7 @@ public class CertificateEntityMapper {
   public static CertificateEntity toEntity(Certificate certificate,
       TerminationEntity terminationEntity) {
     return new CertificateEntity(
-        0L,
+        null,
         certificate.certificateId().id(),
         certificate.revoked(),
         Base64.getEncoder().encodeToString(certificate.certificateXML().xml().getBytes()),

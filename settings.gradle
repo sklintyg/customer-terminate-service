@@ -1,3 +1,16 @@
+dependencyResolutionManagement {
+    repositories {
+        mavenLocal()
+        maven { url = "https://nexus.drift.inera.se/repository/it-public/" }
+        gradlePluginPortal()
+    }
+    versionCatalogs {
+        libs {
+            from("se.inera.intyg.bom:catalog:${settings.ext.intygBomVersion}")
+        }
+    }
+}
+
 rootProject.name = 'customer-terminate-service'
 
 include 'app'
