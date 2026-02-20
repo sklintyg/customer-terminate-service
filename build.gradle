@@ -1,4 +1,5 @@
 plugins {
+    alias(libs.plugins.com.github.ben.manes.versions)
     alias(libs.plugins.org.cyclonedx.bom)
     alias(libs.plugins.org.sonarqube)
     alias(libs.plugins.org.springframework.boot)
@@ -6,7 +7,6 @@ plugins {
 
 ext {
     okhttpVersion = '5.3.2'
-    nvdMirror = 'https://vulnz-nvd-mirror-devtest.intyg.nordicmedtest.se'
 }
 
 apply from: 'gradle/configureIntygBom.gradle'
@@ -29,14 +29,6 @@ allprojects {
     }
 }
 
-sonar {
-    properties {
-        property "sonar.projectKey", "intyg-cts"
-        property "sonar.projectName", "intyg-cts"
-        property "sonar.dependencyCheck.jsonReportPath", "${layout.buildDirectory.get()}/reports/dependency-check-report.json" as String
-        property "sonar.dependencyCheck.htmlReportPath", "${layout.buildDirectory.get()}/reports/dependency-check-report.html" as String
-    }
-}
 
 subprojects {
     apply plugin: 'jacoco'
@@ -53,8 +45,6 @@ subprojects {
             extendsFrom annotationProcessor
         }
     }
-
-    apply plugin: 'io.spring.dependency-management'
 
     compileJava {
         options.encoding = "UTF-8"
@@ -116,8 +106,8 @@ reporting {
 
 sonar {
     properties {
-        property "sonar.projectKey", "intyg-certificate-print-service"
-        property "sonar.projectName", "intyg-certificate-print-service"
+        property "sonar.projectKey", "intyg-cts"
+        property "sonar.projectName", "intyg-cts"
         property "sonar.exclusions", "**/testability/**,**/integrationtest/**"
     }
 }
