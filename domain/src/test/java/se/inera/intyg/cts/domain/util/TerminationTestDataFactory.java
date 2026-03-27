@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.domain.util;
 
 import java.time.LocalDateTime;
@@ -25,12 +43,11 @@ public class TerminationTestDataFactory {
   private static final String DEFAULT_PASSWORD = "Password";
   public static final int DEFAULT_TOTAL = 100;
   public static final int DEFAULT_REVOKED = 10;
-  private static final LocalDateTime DEFAULT_RECEIPT_TIME = DEFAULT_CREATED.plus(10,
-      ChronoUnit.DAYS);
+  private static final LocalDateTime DEFAULT_RECEIPT_TIME =
+      DEFAULT_CREATED.plus(10, ChronoUnit.DAYS);
 
   public static Termination defaultTermination() {
-    return defaultTerminationBuilder()
-        .create();
+    return defaultTerminationBuilder().create();
   }
 
   public static Termination exportedTerminationWithStartErase() {
@@ -56,9 +73,7 @@ public class TerminationTestDataFactory {
   }
 
   public static Termination terminationWithStatus(TerminationStatus status) {
-    return defaultTerminationBuilder()
-        .status(status)
-        .create();
+    return defaultTerminationBuilder().status(status).create();
   }
 
   public static TerminationBuilder defaultTerminationBuilder() {

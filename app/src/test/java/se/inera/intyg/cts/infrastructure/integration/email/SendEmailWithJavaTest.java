@@ -1,5 +1,22 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.integration.email;
-
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doReturn;
@@ -26,14 +43,11 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ExtendWith(MockitoExtension.class)
 class SendEmailWithJavaTest {
 
-  @Mock
-  private JavaMailSender mailSender;
+  @Mock private JavaMailSender mailSender;
 
-  @InjectMocks
-  private SendEmailWithJava sendEmailWithJava;
+  @InjectMocks private SendEmailWithJava sendEmailWithJava;
 
-  @Captor
-  private ArgumentCaptor<MimeMessage> messageCaptor;
+  @Captor private ArgumentCaptor<MimeMessage> messageCaptor;
 
   private static final String EMAIL_SUBJECT = "Test email subject";
   private static final String EMAIL_CONTENT = "Test email content";
@@ -45,7 +59,8 @@ class SendEmailWithJavaTest {
   public void init() {
     ReflectionTestUtils.setField(sendEmailWithJava, "emailFromAddress", EMAIL_FROM_ADDRESS);
     doReturn(new MimeMessage(Session.getInstance(new Properties(), null)))
-        .when(mailSender).createMimeMessage();
+        .when(mailSender)
+        .createMimeMessage();
   }
 
   @Test
@@ -54,8 +69,8 @@ class SendEmailWithJavaTest {
 
     verify(mailSender, times(1)).send(messageCaptor.capture());
     assertEquals(1, messageCaptor.getValue().getRecipients(RecipientType.TO).length);
-    assertEquals(EMAIL_TO_ADDRESS,
-        messageCaptor.getValue().getRecipients(RecipientType.TO)[0].toString());
+    assertEquals(
+        EMAIL_TO_ADDRESS, messageCaptor.getValue().getRecipients(RecipientType.TO)[0].toString());
   }
 
   @Test

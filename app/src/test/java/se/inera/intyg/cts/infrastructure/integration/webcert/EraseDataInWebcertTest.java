@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.integration.webcert;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,8 +50,9 @@ class EraseDataInWebcertTest {
   @BeforeAll
   static void beforeAll() throws IOException {
     mockWebcert = new MockWebServer();
-    ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(
-        ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+    ch.qos.logback.classic.Logger rootLogger =
+        (ch.qos.logback.classic.Logger)
+            LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
     rootLogger.setLevel(Level.toLevel("info"));
     mockWebcert.start();
   }
@@ -47,8 +66,9 @@ class EraseDataInWebcertTest {
   void setUp() throws IOException {
     final var webClient = WebClient.create();
 
-    eraseDataInWebcert = new EraseDataInWebcert(webClient, SCHEME, BASE_URL,
-        Integer.toString(mockWebcert.getPort()), ERASE_ENDPOINT);
+    eraseDataInWebcert =
+        new EraseDataInWebcert(
+            webClient, SCHEME, BASE_URL, Integer.toString(mockWebcert.getPort()), ERASE_ENDPOINT);
 
     termination = defaultTermination();
   }
@@ -61,20 +81,19 @@ class EraseDataInWebcertTest {
 
     final var pathSegments = mockWebcert.takeRequest().getRequestUrl().toString();
 
-    assertTrue(pathSegments.contains(termination.careProvider().hsaId().id()),
-        () -> String.format("HSA-Id '%s' was not included in the url '%s'",
-            termination.careProvider().hsaId().id(), pathSegments));
+    assertTrue(
+        pathSegments.contains(termination.careProvider().hsaId().id()),
+        () ->
+            String.format(
+                "HSA-Id '%s' was not included in the url '%s'",
+                termination.careProvider().hsaId().id(), pathSegments));
   }
 
   @Test
   void shallThrowEraseExceptionIfEraseFailed() {
-    mockWebcert.enqueue(new MockResponse()
-        .setResponseCode(500)
-    );
+    mockWebcert.enqueue(new MockResponse().setResponseCode(500));
 
-    assertThrows(EraseException.class,
-        () -> eraseDataInWebcert.erase(termination)
-    );
+    assertThrows(EraseException.class, () -> eraseDataInWebcert.erase(termination));
   }
 
   @Test

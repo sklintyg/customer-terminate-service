@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.domain.model;
 
 import java.time.LocalDateTime;
@@ -7,25 +25,24 @@ import java.util.stream.Collectors;
 
 public class Termination {
 
-  private final static List<TerminationStatus> ALLOWED_TO_UPDATE = Arrays.asList(
-      TerminationStatus.CREATED,
-      TerminationStatus.COLLECTING_CERTIFICATES,
-      TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED,
-      TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED,
-      TerminationStatus.EXPORTED,
-      TerminationStatus.NOTIFICATION_SENT,
-      TerminationStatus.REMINDER_SENT
-  );
+  private static final List<TerminationStatus> ALLOWED_TO_UPDATE =
+      Arrays.asList(
+          TerminationStatus.CREATED,
+          TerminationStatus.COLLECTING_CERTIFICATES,
+          TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED,
+          TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED,
+          TerminationStatus.EXPORTED,
+          TerminationStatus.NOTIFICATION_SENT,
+          TerminationStatus.REMINDER_SENT);
 
-  private final static List<TerminationStatus> NEED_REEXPORT_STATUS = List.of(
-      TerminationStatus.EXPORTED,
-      TerminationStatus.NOTIFICATION_SENT,
-      TerminationStatus.REMINDER_SENT
-  );
+  private static final List<TerminationStatus> NEED_REEXPORT_STATUS =
+      List.of(
+          TerminationStatus.EXPORTED,
+          TerminationStatus.NOTIFICATION_SENT,
+          TerminationStatus.REMINDER_SENT);
 
-  private final static List<TerminationStatus> NEED_RENOTIFICATION_STATUS = List.of(
-      TerminationStatus.NOTIFICATION_SENT,
-      TerminationStatus.REMINDER_SENT);
+  private static final List<TerminationStatus> NEED_RENOTIFICATION_STATUS =
+      List.of(TerminationStatus.NOTIFICATION_SENT, TerminationStatus.REMINDER_SENT);
 
   private final TerminationId terminationId;
   private final LocalDateTime created;
@@ -36,8 +53,14 @@ public class Termination {
   private final Export export;
   private Erase erase;
 
-  Termination(TerminationId terminationId, LocalDateTime created, LocalDateTime modified,
-      Staff creator, CareProvider careProvider, TerminationStatus status, Export export,
+  Termination(
+      TerminationId terminationId,
+      LocalDateTime created,
+      LocalDateTime modified,
+      Staff creator,
+      CareProvider careProvider,
+      TerminationStatus status,
+      Export export,
       Erase erase) {
     this.modified = modified;
     if (terminationId == null) {
@@ -165,16 +188,17 @@ public class Termination {
   }
 
   public void erased(ServiceId serviceId) {
-    erase = new Erase(
-        erase.eraseServices().stream()
-            .map(service -> {
-              if (service.serviceId().equals(serviceId)) {
-                return new EraseService(serviceId, true);
-              }
-              return service;
-            })
-            .collect(Collectors.toList())
-    );
+    erase =
+        new Erase(
+            erase.eraseServices().stream()
+                .map(
+                    service -> {
+                      if (service.serviceId().equals(serviceId)) {
+                        return new EraseService(serviceId, true);
+                      }
+                      return service;
+                    })
+                .collect(Collectors.toList()));
 
     if (erase.eraseServices().stream().allMatch(eraseService -> eraseService.erased())) {
       status = TerminationStatus.ERASE_COMPLETED;
@@ -183,26 +207,33 @@ public class Termination {
 
   @Override
   public String toString() {
-    return "Termination{" +
-        "terminationId=" + terminationId +
-        ", created=" + created +
-        ", modified=" + modified +
-        ", creator=" + creator +
-        ", careProvider=" + careProvider +
-        ", status=" + status +
-        ", export=" + export +
-        ", erase=" + erase +
-        '}';
+    return "Termination{"
+        + "terminationId="
+        + terminationId
+        + ", created="
+        + created
+        + ", modified="
+        + modified
+        + ", creator="
+        + creator
+        + ", careProvider="
+        + careProvider
+        + ", status="
+        + status
+        + ", export="
+        + export
+        + ", erase="
+        + erase
+        + '}';
   }
 
-  public void update(HSAId hsaId, PersonId personId, EmailAddress emailAddress,
-      PhoneNumber phoneNumber) {
+  public void update(
+      HSAId hsaId, PersonId personId, EmailAddress emailAddress, PhoneNumber phoneNumber) {
     if (notAllowedToUpdate()) {
       throw new IllegalStateException(
           String.format(
               "Not allowed to update because termination '%s' has status '%s'!",
-              terminationId.id(), status)
-      );
+              terminationId.id(), status));
     }
 
     if (!careProvider.hsaId().equals(hsaId)) {
@@ -230,11 +261,11 @@ public class Termination {
   }
 
   private void updatePersonId(PersonId personId) {
-    export.update(new OrganizationRepresentative(
-        personId,
-        export.organizationRepresentative().phoneNumber(),
-        export.organizationRepresentative().emailAddress()
-    ));
+    export.update(
+        new OrganizationRepresentative(
+            personId,
+            export.organizationRepresentative().phoneNumber(),
+            export.organizationRepresentative().emailAddress()));
 
     if (isReExportNeeded()) {
       status = newStatusForReExport();
@@ -245,11 +276,11 @@ public class Termination {
   }
 
   private void updatePhoneNumber(PhoneNumber phoneNumber) {
-    export.update(new OrganizationRepresentative(
-        export.organizationRepresentative().personId(),
-        phoneNumber,
-        export.organizationRepresentative().emailAddress()
-    ));
+    export.update(
+        new OrganizationRepresentative(
+            export.organizationRepresentative().personId(),
+            phoneNumber,
+            export.organizationRepresentative().emailAddress()));
 
     if (isReNotificationNeeded()) {
       status = newStatusForReNotification();
@@ -260,11 +291,11 @@ public class Termination {
   }
 
   private void updateEmailAdress(EmailAddress emailAddress) {
-    export.update(new OrganizationRepresentative(
-        export.organizationRepresentative().personId(),
-        export.organizationRepresentative().phoneNumber(),
-        emailAddress
-    ));
+    export.update(
+        new OrganizationRepresentative(
+            export.organizationRepresentative().personId(),
+            export.organizationRepresentative().phoneNumber(),
+            emailAddress));
 
     if (isReNotificationNeeded()) {
       status = newStatusForReNotification();

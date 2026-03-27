@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.application.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,20 +41,17 @@ import se.inera.intyg.cts.domain.service.EraseDataForCareProvider;
 @ExtendWith(MockitoExtension.class)
 class EraseServiceImplTest {
 
-  @Mock
-  private TerminationRepository terminationRepository;
+  @Mock private TerminationRepository terminationRepository;
 
-  @Mock
-  private EraseDataForCareProvider eraseDataForCareProvider;
+  @Mock private EraseDataForCareProvider eraseDataForCareProvider;
 
-  @InjectMocks
-  private EraseServiceImpl eraseService;
+  @InjectMocks private EraseServiceImpl eraseService;
 
   @Test
   void dontEraseIfNoTerminationOfCorrectStatus() {
     when(terminationRepository.findByStatuses(
-        Arrays.asList(TerminationStatus.START_ERASE, TerminationStatus.ERASE_IN_PROGRESS)
-    )).thenReturn(Collections.emptyList());
+            Arrays.asList(TerminationStatus.START_ERASE, TerminationStatus.ERASE_IN_PROGRESS)))
+        .thenReturn(Collections.emptyList());
 
     eraseService.erase();
 
@@ -45,13 +60,12 @@ class EraseServiceImplTest {
 
   @Test
   void eraseWhenTerminationOfStatusStartErase() {
-    final var termination = defaultTerminationBuilder()
-        .status(TerminationStatus.START_ERASE)
-        .create();
+    final var termination =
+        defaultTerminationBuilder().status(TerminationStatus.START_ERASE).create();
 
     when(terminationRepository.findByStatuses(
-        Arrays.asList(TerminationStatus.START_ERASE, TerminationStatus.ERASE_IN_PROGRESS)
-    )).thenReturn(Collections.singletonList(termination));
+            Arrays.asList(TerminationStatus.START_ERASE, TerminationStatus.ERASE_IN_PROGRESS)))
+        .thenReturn(Collections.singletonList(termination));
 
     eraseService.erase();
 
@@ -60,13 +74,12 @@ class EraseServiceImplTest {
 
   @Test
   void eraseWhenTerminationOfStatusEraseInProgress() {
-    final var termination = defaultTerminationBuilder()
-        .status(TerminationStatus.ERASE_IN_PROGRESS)
-        .create();
+    final var termination =
+        defaultTerminationBuilder().status(TerminationStatus.ERASE_IN_PROGRESS).create();
 
     when(terminationRepository.findByStatuses(
-        Arrays.asList(TerminationStatus.START_ERASE, TerminationStatus.ERASE_IN_PROGRESS)
-    )).thenReturn(Collections.singletonList(termination));
+            Arrays.asList(TerminationStatus.START_ERASE, TerminationStatus.ERASE_IN_PROGRESS)))
+        .thenReturn(Collections.singletonList(termination));
 
     eraseService.erase();
 
@@ -75,9 +88,8 @@ class EraseServiceImplTest {
 
   @Test
   void setTerminationStatusToStartEraseWhenEraseIsInitiated() {
-    final var termination = defaultTerminationBuilder()
-        .status(TerminationStatus.PASSWORD_SENT)
-        .create();
+    final var termination =
+        defaultTerminationBuilder().status(TerminationStatus.PASSWORD_SENT).create();
 
     when(terminationRepository.findByTerminationId(termination.terminationId()))
         .thenReturn(Optional.of(termination));
@@ -90,9 +102,8 @@ class EraseServiceImplTest {
 
   @Test
   void throwExceptionIfTerminationDoesntExist() {
-    final var termination = defaultTerminationBuilder()
-        .status(TerminationStatus.PASSWORD_SENT)
-        .create();
+    final var termination =
+        defaultTerminationBuilder().status(TerminationStatus.PASSWORD_SENT).create();
 
     when(terminationRepository.findByTerminationId(termination.terminationId()))
         .thenReturn(Optional.empty());

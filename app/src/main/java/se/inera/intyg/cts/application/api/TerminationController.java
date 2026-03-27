@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.application.api;
 
 import static se.inera.intyg.cts.logging.MdcLogConstants.EVENT_TYPE_ACCESSED;
@@ -47,8 +65,8 @@ public class TerminationController {
 
   @PostMapping("/{terminationId}")
   @PerformanceLogging(eventAction = "change-termination", eventType = EVENT_TYPE_CHANGE)
-  TerminationDTO update(@PathVariable UUID terminationId,
-      @RequestBody UpdateTerminationDTO updateTerminationDTO) {
+  TerminationDTO update(
+      @PathVariable UUID terminationId, @RequestBody UpdateTerminationDTO updateTerminationDTO) {
     try {
       return terminationService.update(terminationId, updateTerminationDTO);
     } catch (IllegalArgumentException | IllegalStateException ex) {
@@ -59,11 +77,13 @@ public class TerminationController {
   @GetMapping("/{terminationId}")
   @PerformanceLogging(eventAction = "find-termination", eventType = EVENT_TYPE_ACCESSED)
   TerminationDTO findById(@PathVariable UUID terminationId) {
-    return terminationService.findById(terminationId)
+    return terminationService
+        .findById(terminationId)
         .orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                String.format("Couldn't find termination with id: %s", terminationId))
-        );
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    String.format("Couldn't find termination with id: %s", terminationId)));
   }
 
   @GetMapping
@@ -84,6 +104,7 @@ public class TerminationController {
 
   /**
    * Trigger a resend of the password
+   *
    * @param terminationId termination id that should have its password resent
    * @return updated termination
    */
@@ -93,11 +114,12 @@ public class TerminationController {
     try {
       return terminationService.resendPassword(terminationId);
     } catch (IllegalArgumentException ex) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, ex.getMessage());
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
     } catch (RuntimeException ex) {
       throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, String.format("Couldn't find termination with id: %s", terminationId), ex);
+          HttpStatus.BAD_REQUEST,
+          String.format("Couldn't find termination with id: %s", terminationId),
+          ex);
     }
   }
 }

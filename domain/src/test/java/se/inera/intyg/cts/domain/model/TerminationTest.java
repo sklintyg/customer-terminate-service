@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.domain.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,24 +45,20 @@ class TerminationTest {
           TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED,
           TerminationStatus.EXPORTED,
           TerminationStatus.NOTIFICATION_SENT,
-          TerminationStatus.REMINDER_SENT
-      );
+          TerminationStatus.REMINDER_SENT);
     }
 
     @ParameterizedTest
     @MethodSource("statusAllowedToUpdateHsaId")
     void shallUpdateOfHsaIdIfOfFollowingStatus(TerminationStatus terminationStatus) {
       final var newHsaId = new HSAId("NewHsaId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       termination.update(
           newHsaId,
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
       assertEquals(newHsaId, termination.careProvider().hsaId());
     }
@@ -56,37 +70,33 @@ class TerminationTest {
           TerminationStatus.START_ERASE,
           TerminationStatus.ERASE_IN_PROGRESS,
           TerminationStatus.ERASE_CANCELLED,
-          TerminationStatus.ERASE_COMPLETED
-      );
+          TerminationStatus.ERASE_COMPLETED);
     }
 
     @ParameterizedTest
     @MethodSource("statusBlockedToUpdateHsaId")
     void shallBlockUpdateOfHsaIdIfOfFollowingStatus(TerminationStatus terminationStatus) {
       final var newHsaId = new HSAId("NewHsaId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
-      final var exception = assertThrows(IllegalStateException.class,
-          () ->
-              termination.update(
-                  newHsaId,
-                  termination.export().organizationRepresentative().personId(),
-                  termination.export().organizationRepresentative().emailAddress(),
-                  termination.export().organizationRepresentative().phoneNumber()
-              ));
+      final var exception =
+          assertThrows(
+              IllegalStateException.class,
+              () ->
+                  termination.update(
+                      newHsaId,
+                      termination.export().organizationRepresentative().personId(),
+                      termination.export().organizationRepresentative().emailAddress(),
+                      termination.export().organizationRepresentative().phoneNumber()));
 
-      assertTrue(exception.getMessage().contains("Not allowed to update"),
-          () -> exception.getMessage());
+      assertTrue(
+          exception.getMessage().contains("Not allowed to update"), () -> exception.getMessage());
     }
 
     @ParameterizedTest
     @MethodSource("statusAllowedToUpdateHsaId")
     void shallNotUpdateHsaIdIfItHasntChanged(TerminationStatus terminationStatus) {
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       final var expectedHsaId = termination.careProvider().hsaId();
 
@@ -94,8 +104,7 @@ class TerminationTest {
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
       assertEquals(expectedHsaId, termination.careProvider().hsaId());
     }
@@ -104,16 +113,13 @@ class TerminationTest {
     @MethodSource("statusAllowedToUpdateHsaId")
     void shallResetStatusToCreatedWhenHsaIdIsUpdated(TerminationStatus terminationStatus) {
       final var newHsaId = new HSAId("NewHsaId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       termination.update(
           newHsaId,
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
       assertEquals(TerminationStatus.CREATED, termination.status());
     }
@@ -122,18 +128,14 @@ class TerminationTest {
     @MethodSource("statusAllowedToUpdateHsaId")
     void shallResetCertificateSummaryWhenHsaIdIsUpdated(TerminationStatus terminationStatus) {
       final var newHsaId = new HSAId("NewHsaId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .total(100)
-          .revoked(10)
-          .create();
+      final var termination =
+          defaultTerminationBuilder().status(terminationStatus).total(100).revoked(10).create();
 
       termination.update(
           newHsaId,
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
       assertEquals(new CertificateSummary(0, 0), termination.export().certificateSummary());
     }
@@ -142,65 +144,64 @@ class TerminationTest {
     @MethodSource("statusAllowedToUpdateHsaId")
     void shallResetPasswordWhenHsaIdIsUpdated(TerminationStatus terminationStatus) {
       final var newHsaId = new HSAId("NewHsaId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .total(100)
-          .revoked(10)
-          .packagePassword("Password")
-          .create();
+      final var termination =
+          defaultTerminationBuilder()
+              .status(terminationStatus)
+              .total(100)
+              .revoked(10)
+              .packagePassword("Password")
+              .create();
 
       termination.update(
           newHsaId,
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertNull(termination.export().password(),
-          () -> "Password should be reset to null!");
+      assertNull(termination.export().password(), () -> "Password should be reset to null!");
     }
 
     @ParameterizedTest
     @MethodSource("statusAllowedToUpdateHsaId")
     void shallResetExportTimeWhenHsaIdIsUpdated(TerminationStatus terminationStatus) {
       final var newHsaId = new HSAId("NewHsaId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .total(100)
-          .revoked(10)
-          .exportTime(LocalDateTime.now())
-          .create();
+      final var termination =
+          defaultTerminationBuilder()
+              .status(terminationStatus)
+              .total(100)
+              .revoked(10)
+              .exportTime(LocalDateTime.now())
+              .create();
 
       termination.update(
           newHsaId,
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertNull(termination.export().exportTime(),
-          () -> "Export time should be reset to null!");
+      assertNull(termination.export().exportTime(), () -> "Export time should be reset to null!");
     }
 
     @ParameterizedTest
     @MethodSource("statusAllowedToUpdateHsaId")
     void shallResetNotificationTimeWhenHsaIdIsUpdated(TerminationStatus terminationStatus) {
       final var newHsaId = new HSAId("NewHsaId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .total(100)
-          .revoked(10)
-          .notificationTime(LocalDateTime.now())
-          .create();
+      final var termination =
+          defaultTerminationBuilder()
+              .status(terminationStatus)
+              .total(100)
+              .revoked(10)
+              .notificationTime(LocalDateTime.now())
+              .create();
 
       termination.update(
           newHsaId,
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertNull(termination.export().notificationTime(),
+      assertNull(
+          termination.export().notificationTime(),
           () -> "Notification time should be reset to null!");
     }
 
@@ -208,34 +209,35 @@ class TerminationTest {
     @MethodSource("statusAllowedToUpdateHsaId")
     void shallResetReminderTimeWhenHsaIdIsUpdated(TerminationStatus terminationStatus) {
       final var newHsaId = new HSAId("NewHsaId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .total(100)
-          .revoked(10)
-          .reminderTime(LocalDateTime.now())
-          .create();
+      final var termination =
+          defaultTerminationBuilder()
+              .status(terminationStatus)
+              .total(100)
+              .revoked(10)
+              .reminderTime(LocalDateTime.now())
+              .create();
 
       termination.update(
           newHsaId,
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertNull(termination.export().reminderTime(),
-          () -> "Reminder time should be reset to null!");
+      assertNull(
+          termination.export().reminderTime(), () -> "Reminder time should be reset to null!");
     }
 
     @ParameterizedTest
     @MethodSource("statusAllowedToUpdateHsaId")
     void shallUpdateModifiedWhenHsaIdIsUpdated(TerminationStatus terminationStatus) {
       final var newHsaId = new HSAId("NewHsaId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .total(100)
-          .revoked(10)
-          .packagePassword("Password")
-          .create();
+      final var termination =
+          defaultTerminationBuilder()
+              .status(terminationStatus)
+              .total(100)
+              .revoked(10)
+              .packagePassword("Password")
+              .create();
 
       final var beforeUpdate = termination.modified();
 
@@ -243,13 +245,14 @@ class TerminationTest {
           newHsaId,
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertTrue(termination.modified().isAfter(beforeUpdate), () ->
-          String.format("Expect modified '%s' to be updated and after '%s'",
-              termination.modified(), beforeUpdate)
-      );
+      assertTrue(
+          termination.modified().isAfter(beforeUpdate),
+          () ->
+              String.format(
+                  "Expect modified '%s' to be updated and after '%s'",
+                  termination.modified(), beforeUpdate));
     }
   }
 
@@ -265,24 +268,20 @@ class TerminationTest {
           TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED,
           TerminationStatus.EXPORTED,
           TerminationStatus.NOTIFICATION_SENT,
-          TerminationStatus.REMINDER_SENT
-      );
+          TerminationStatus.REMINDER_SENT);
     }
 
     @ParameterizedTest
     @MethodSource("statusAllowedToUpdatePersonId")
     void shallUpdateOfHsaIdIfOfFollowingStatus(TerminationStatus terminationStatus) {
       final var newPersonId = new PersonId("NewPersonId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       termination.update(
           termination.careProvider().hsaId(),
           newPersonId,
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
       assertEquals(newPersonId, termination.export().organizationRepresentative().personId());
     }
@@ -294,38 +293,33 @@ class TerminationTest {
           TerminationStatus.START_ERASE,
           TerminationStatus.ERASE_IN_PROGRESS,
           TerminationStatus.ERASE_CANCELLED,
-          TerminationStatus.ERASE_COMPLETED
-      );
+          TerminationStatus.ERASE_COMPLETED);
     }
 
     @ParameterizedTest
     @MethodSource("statusBlockedToUpdateHsaId")
     void shallBlockUpdateOfHsaIdIfOfFollowingStatus(TerminationStatus terminationStatus) {
       final var newPersonId = new PersonId("NewPersonId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
-      final var exception = assertThrows(IllegalStateException.class,
-          () ->
-              termination.update(
-                  termination.careProvider().hsaId(),
-                  newPersonId,
-                  termination.export().organizationRepresentative().emailAddress(),
-                  termination.export().organizationRepresentative().phoneNumber()
-              )
-      );
+      final var exception =
+          assertThrows(
+              IllegalStateException.class,
+              () ->
+                  termination.update(
+                      termination.careProvider().hsaId(),
+                      newPersonId,
+                      termination.export().organizationRepresentative().emailAddress(),
+                      termination.export().organizationRepresentative().phoneNumber()));
 
-      assertTrue(exception.getMessage().contains("Not allowed to update"),
-          () -> exception.getMessage());
+      assertTrue(
+          exception.getMessage().contains("Not allowed to update"), () -> exception.getMessage());
     }
 
     @ParameterizedTest
     @MethodSource("statusAllowedToUpdatePersonId")
     void shallNotUpdateHsaIdIfItHasntChanged(TerminationStatus terminationStatus) {
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       final var expectedPersonId = termination.export().organizationRepresentative().personId();
 
@@ -333,38 +327,31 @@ class TerminationTest {
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertEquals(expectedPersonId,
-          termination.export().organizationRepresentative().personId());
+      assertEquals(expectedPersonId, termination.export().organizationRepresentative().personId());
     }
 
     Stream<TerminationStatus> statusToResetExport() {
       return Stream.of(
           TerminationStatus.EXPORTED,
           TerminationStatus.NOTIFICATION_SENT,
-          TerminationStatus.REMINDER_SENT
-      );
+          TerminationStatus.REMINDER_SENT);
     }
 
     @ParameterizedTest
     @MethodSource("statusToResetExport")
     void shallResetStatusToPreExportWhenPersonIdIsUpdated(TerminationStatus terminationStatus) {
       final var newPersonId = new PersonId("NewPersonId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       termination.update(
           termination.careProvider().hsaId(),
           newPersonId,
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertEquals(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED,
-          termination.status());
+      assertEquals(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED, termination.status());
     }
 
     Stream<TerminationStatus> statusToLeaveUnchanged() {
@@ -372,24 +359,20 @@ class TerminationTest {
           TerminationStatus.CREATED,
           TerminationStatus.COLLECTING_CERTIFICATES,
           TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED,
-          TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED
-      );
+          TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED);
     }
 
     @ParameterizedTest
     @MethodSource("statusToLeaveUnchanged")
     void shallLeaveStatusUnchangedWhenPersonIdIsUpdated(TerminationStatus terminationStatus) {
       final var newPersonId = new PersonId("NewPersonId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       termination.update(
           termination.careProvider().hsaId(),
           newPersonId,
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
       assertEquals(terminationStatus, termination.status());
     }
@@ -398,9 +381,7 @@ class TerminationTest {
     @MethodSource("statusAllowedToUpdatePersonId")
     void shallUpdateModifiedWhenPersonIdIsUpdated(TerminationStatus terminationStatus) {
       final var newPersonId = new PersonId("NewPersonId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       final var beforeUpdate = termination.modified();
 
@@ -408,52 +389,54 @@ class TerminationTest {
           termination.careProvider().hsaId(),
           newPersonId,
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertTrue(termination.modified().isAfter(beforeUpdate), () ->
-          String.format("Expect modified '%s' to be updated and after '%s'",
-              termination.modified(), beforeUpdate)
-      );
+      assertTrue(
+          termination.modified().isAfter(beforeUpdate),
+          () ->
+              String.format(
+                  "Expect modified '%s' to be updated and after '%s'",
+                  termination.modified(), beforeUpdate));
     }
 
     @ParameterizedTest
     @MethodSource("statusAllowedToUpdatePersonId")
     void shallResetExportTimeWhenPersonIdIsUpdated(TerminationStatus terminationStatus) {
       final var newPersonId = new PersonId("NewPersonId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .exportTime(LocalDateTime.now())
-          .create();
+      final var termination =
+          defaultTerminationBuilder()
+              .status(terminationStatus)
+              .exportTime(LocalDateTime.now())
+              .create();
 
       termination.update(
           termination.careProvider().hsaId(),
           newPersonId,
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertNull(termination.export().exportTime(),
-          () -> "Notification time should be reset to null!");
+      assertNull(
+          termination.export().exportTime(), () -> "Notification time should be reset to null!");
     }
 
     @ParameterizedTest
     @MethodSource("statusAllowedToUpdatePersonId")
     void shallResetNotificationTimeWhenPersonIdIsUpdated(TerminationStatus terminationStatus) {
       final var newPersonId = new PersonId("NewPersonId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .notificationTime(LocalDateTime.now())
-          .create();
+      final var termination =
+          defaultTerminationBuilder()
+              .status(terminationStatus)
+              .notificationTime(LocalDateTime.now())
+              .create();
 
       termination.update(
           termination.careProvider().hsaId(),
           newPersonId,
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertNull(termination.export().notificationTime(),
+      assertNull(
+          termination.export().notificationTime(),
           () -> "Notification time should be reset to null!");
     }
 
@@ -461,20 +444,20 @@ class TerminationTest {
     @MethodSource("statusAllowedToUpdatePersonId")
     void shallResetReminderTimeWhenPersonIdIsUpdated(TerminationStatus terminationStatus) {
       final var newPersonId = new PersonId("NewPersonId");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .reminderTime(LocalDateTime.now())
-          .create();
+      final var termination =
+          defaultTerminationBuilder()
+              .status(terminationStatus)
+              .reminderTime(LocalDateTime.now())
+              .create();
 
       termination.update(
           termination.careProvider().hsaId(),
           newPersonId,
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertNull(termination.export().reminderTime(),
-          () -> "Reminder time should be reset to null!");
+      assertNull(
+          termination.export().reminderTime(), () -> "Reminder time should be reset to null!");
     }
   }
 
@@ -490,27 +473,23 @@ class TerminationTest {
           TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED,
           TerminationStatus.EXPORTED,
           TerminationStatus.NOTIFICATION_SENT,
-          TerminationStatus.REMINDER_SENT
-      );
+          TerminationStatus.REMINDER_SENT);
     }
 
     @ParameterizedTest
     @MethodSource("statusAllowedToUpdateEmail")
     void shallUpdateOfEmailIfOfFollowingStatus(TerminationStatus terminationStatus) {
       final var newEmailAdress = new EmailAddress("NewEmailAdress");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       termination.update(
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           newEmailAdress,
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertEquals(newEmailAdress,
-          termination.export().organizationRepresentative().emailAddress());
+      assertEquals(
+          newEmailAdress, termination.export().organizationRepresentative().emailAddress());
     }
 
     Stream<TerminationStatus> statusBlockedToUpdateEmail() {
@@ -520,38 +499,33 @@ class TerminationTest {
           TerminationStatus.START_ERASE,
           TerminationStatus.ERASE_IN_PROGRESS,
           TerminationStatus.ERASE_CANCELLED,
-          TerminationStatus.ERASE_COMPLETED
-      );
+          TerminationStatus.ERASE_COMPLETED);
     }
 
     @ParameterizedTest
     @MethodSource("statusBlockedToUpdateEmail")
     void shallBlockUpdateOfEmailIfOfFollowingStatus(TerminationStatus terminationStatus) {
       final var newEmailAdress = new EmailAddress("NewEmailAdress");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
-      final var exception = assertThrows(IllegalStateException.class,
-          () ->
-              termination.update(
-                  termination.careProvider().hsaId(),
-                  termination.export().organizationRepresentative().personId(),
-                  newEmailAdress,
-                  termination.export().organizationRepresentative().phoneNumber()
-              )
-      );
+      final var exception =
+          assertThrows(
+              IllegalStateException.class,
+              () ->
+                  termination.update(
+                      termination.careProvider().hsaId(),
+                      termination.export().organizationRepresentative().personId(),
+                      newEmailAdress,
+                      termination.export().organizationRepresentative().phoneNumber()));
 
-      assertTrue(exception.getMessage().contains("Not allowed to update"),
-          () -> exception.getMessage());
+      assertTrue(
+          exception.getMessage().contains("Not allowed to update"), () -> exception.getMessage());
     }
 
     @ParameterizedTest
     @MethodSource("statusAllowedToUpdateEmail")
     void shallNotUpdateEmailIfItHasntChanged(TerminationStatus terminationStatus) {
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       final var expectedEmail = termination.export().organizationRepresentative().emailAddress();
 
@@ -559,37 +533,28 @@ class TerminationTest {
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertEquals(expectedEmail,
-          termination.export().organizationRepresentative().emailAddress());
+      assertEquals(expectedEmail, termination.export().organizationRepresentative().emailAddress());
     }
 
     Stream<TerminationStatus> statusToResetNotifications() {
-      return Stream.of(
-          TerminationStatus.NOTIFICATION_SENT,
-          TerminationStatus.REMINDER_SENT
-      );
+      return Stream.of(TerminationStatus.NOTIFICATION_SENT, TerminationStatus.REMINDER_SENT);
     }
 
     @ParameterizedTest
     @MethodSource("statusToResetNotifications")
     void shallResetStatusToPreExportWhenEmailIsUpdated(TerminationStatus terminationStatus) {
       final var newEmailAdress = new EmailAddress("NewEmailAdress");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       termination.update(
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           newEmailAdress,
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertEquals(TerminationStatus.EXPORTED,
-          termination.status());
+      assertEquals(TerminationStatus.EXPORTED, termination.status());
     }
 
     Stream<TerminationStatus> statusToLeaveUnchanged() {
@@ -598,24 +563,20 @@ class TerminationTest {
           TerminationStatus.COLLECTING_CERTIFICATES,
           TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED,
           TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED,
-          TerminationStatus.EXPORTED
-      );
+          TerminationStatus.EXPORTED);
     }
 
     @ParameterizedTest
     @MethodSource("statusToLeaveUnchanged")
     void shallLeaveStatusUnchangedWhenEmailIsUpdated(TerminationStatus terminationStatus) {
       final var newEmailAdress = new EmailAddress("NewEmailAdress");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       termination.update(
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           newEmailAdress,
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
       assertEquals(terminationStatus, termination.status());
     }
@@ -624,9 +585,7 @@ class TerminationTest {
     @MethodSource("statusAllowedToUpdateEmail")
     void shallUpdateModifiedWhenEmailIsUpdated(TerminationStatus terminationStatus) {
       final var newEmailAdress = new EmailAddress("NewEmailAdress");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       final var beforeUpdate = termination.modified();
 
@@ -634,32 +593,34 @@ class TerminationTest {
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           newEmailAdress,
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertTrue(termination.modified().isAfter(beforeUpdate), () ->
-          String.format("Expect modified '%s' to be updated and after '%s'",
-              termination.modified(), beforeUpdate)
-      );
+      assertTrue(
+          termination.modified().isAfter(beforeUpdate),
+          () ->
+              String.format(
+                  "Expect modified '%s' to be updated and after '%s'",
+                  termination.modified(), beforeUpdate));
     }
 
     @ParameterizedTest
     @MethodSource("statusAllowedToUpdateEmail")
     void shallResetNotificationTimeWhenEmailIsUpdated(TerminationStatus terminationStatus) {
       final var newEmailAdress = new EmailAddress("NewEmailAdress");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .notificationTime(LocalDateTime.now())
-          .create();
+      final var termination =
+          defaultTerminationBuilder()
+              .status(terminationStatus)
+              .notificationTime(LocalDateTime.now())
+              .create();
 
       termination.update(
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           newEmailAdress,
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertNull(termination.export().notificationTime(),
+      assertNull(
+          termination.export().notificationTime(),
           () -> "Notification time should be reset to null!");
     }
 
@@ -667,20 +628,20 @@ class TerminationTest {
     @MethodSource("statusAllowedToUpdateEmail")
     void shallResetReminderTimeWhenEmailIsUpdated(TerminationStatus terminationStatus) {
       final var newEmailAdress = new EmailAddress("NewEmailAdress");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .reminderTime(LocalDateTime.now())
-          .create();
+      final var termination =
+          defaultTerminationBuilder()
+              .status(terminationStatus)
+              .reminderTime(LocalDateTime.now())
+              .create();
 
       termination.update(
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           newEmailAdress,
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+          termination.export().organizationRepresentative().phoneNumber());
 
-      assertNull(termination.export().reminderTime(),
-          () -> "Reminder time should be reset to null!");
+      assertNull(
+          termination.export().reminderTime(), () -> "Reminder time should be reset to null!");
     }
   }
 
@@ -696,27 +657,22 @@ class TerminationTest {
           TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED,
           TerminationStatus.EXPORTED,
           TerminationStatus.NOTIFICATION_SENT,
-          TerminationStatus.REMINDER_SENT
-      );
+          TerminationStatus.REMINDER_SENT);
     }
 
     @ParameterizedTest
     @MethodSource("statusAllowedToUpdatePhoneNumber")
     void shallUpdateOfPhoneNumberIfOfFollowingStatus(TerminationStatus terminationStatus) {
       final var newPhoneNumber = new PhoneNumber("NewPhoneNumber");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       termination.update(
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          newPhoneNumber
-      );
+          newPhoneNumber);
 
-      assertEquals(newPhoneNumber,
-          termination.export().organizationRepresentative().phoneNumber());
+      assertEquals(newPhoneNumber, termination.export().organizationRepresentative().phoneNumber());
     }
 
     Stream<TerminationStatus> statusBlockedToUpdatePhoneNumber() {
@@ -726,74 +682,62 @@ class TerminationTest {
           TerminationStatus.START_ERASE,
           TerminationStatus.ERASE_IN_PROGRESS,
           TerminationStatus.ERASE_CANCELLED,
-          TerminationStatus.ERASE_COMPLETED
-      );
+          TerminationStatus.ERASE_COMPLETED);
     }
 
     @ParameterizedTest
     @MethodSource("statusBlockedToUpdatePhoneNumber")
     void shallBlockUpdateOfOPhoneNumberIfOfFollowingStatus(TerminationStatus terminationStatus) {
       final var newPhoneNumber = new PhoneNumber("NewPhoneNumber");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
-      final var exception = assertThrows(IllegalStateException.class,
-          () ->
-              termination.update(
-                  termination.careProvider().hsaId(),
-                  termination.export().organizationRepresentative().personId(),
-                  termination.export().organizationRepresentative().emailAddress(),
-                  newPhoneNumber
-              )
-      );
+      final var exception =
+          assertThrows(
+              IllegalStateException.class,
+              () ->
+                  termination.update(
+                      termination.careProvider().hsaId(),
+                      termination.export().organizationRepresentative().personId(),
+                      termination.export().organizationRepresentative().emailAddress(),
+                      newPhoneNumber));
 
-      assertTrue(exception.getMessage().contains("Not allowed to update"),
-          () -> exception.getMessage());
+      assertTrue(
+          exception.getMessage().contains("Not allowed to update"), () -> exception.getMessage());
     }
 
     @ParameterizedTest
     @MethodSource("statusAllowedToUpdatePhoneNumber")
     void shallNotUpdatePhoneNumberIfItHasntChanged(TerminationStatus terminationStatus) {
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
-      final var expectedPhoneNumber = termination.export().organizationRepresentative()
-          .phoneNumber();
+      final var expectedPhoneNumber =
+          termination.export().organizationRepresentative().phoneNumber();
 
       termination.update(
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
-
-      assertEquals(expectedPhoneNumber,
           termination.export().organizationRepresentative().phoneNumber());
+
+      assertEquals(
+          expectedPhoneNumber, termination.export().organizationRepresentative().phoneNumber());
     }
 
     Stream<TerminationStatus> statusToResetNotifications() {
-      return Stream.of(
-          TerminationStatus.NOTIFICATION_SENT,
-          TerminationStatus.REMINDER_SENT
-      );
+      return Stream.of(TerminationStatus.NOTIFICATION_SENT, TerminationStatus.REMINDER_SENT);
     }
 
     @ParameterizedTest
     @MethodSource("statusToResetNotifications")
     void shallResetStatusToPreExportWhenPhoneNumberIsUpdated(TerminationStatus terminationStatus) {
       final var newPhoneNumber = new PhoneNumber("NewPhoneNumber");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       termination.update(
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          newPhoneNumber
-      );
+          newPhoneNumber);
 
       assertEquals(TerminationStatus.EXPORTED, termination.status());
     }
@@ -804,24 +748,20 @@ class TerminationTest {
           TerminationStatus.COLLECTING_CERTIFICATES,
           TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED,
           TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED,
-          TerminationStatus.EXPORTED
-      );
+          TerminationStatus.EXPORTED);
     }
 
     @ParameterizedTest
     @MethodSource("statusToLeaveUnchanged")
     void shallLeaveStatusUnchangedWhenPhoneNumberIsUpdated(TerminationStatus terminationStatus) {
       final var newPhoneNumber = new PhoneNumber("NewPhoneNumber");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       termination.update(
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          newPhoneNumber
-      );
+          newPhoneNumber);
 
       assertEquals(terminationStatus, termination.status());
     }
@@ -830,9 +770,7 @@ class TerminationTest {
     @MethodSource("statusAllowedToUpdatePhoneNumber")
     void shallUpdateModifiedWhenPhoneNumberIsUpdated(TerminationStatus terminationStatus) {
       final var newPhoneNumber = new PhoneNumber("NewPhoneNumber");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
       final var beforeUpdate = termination.modified();
 
@@ -840,32 +778,34 @@ class TerminationTest {
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          newPhoneNumber
-      );
+          newPhoneNumber);
 
-      assertTrue(termination.modified().isAfter(beforeUpdate), () ->
-          String.format("Expect modified '%s' to be updated and after '%s'",
-              termination.modified(), beforeUpdate)
-      );
+      assertTrue(
+          termination.modified().isAfter(beforeUpdate),
+          () ->
+              String.format(
+                  "Expect modified '%s' to be updated and after '%s'",
+                  termination.modified(), beforeUpdate));
     }
 
     @ParameterizedTest
     @MethodSource("statusAllowedToUpdatePhoneNumber")
     void shallResetNotificationTimeWhenPhoneNumberIsUpdated(TerminationStatus terminationStatus) {
       final var newPhoneNumber = new PhoneNumber("NewPhoneNumber");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .notificationTime(LocalDateTime.now())
-          .create();
+      final var termination =
+          defaultTerminationBuilder()
+              .status(terminationStatus)
+              .notificationTime(LocalDateTime.now())
+              .create();
 
       termination.update(
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          newPhoneNumber
-      );
+          newPhoneNumber);
 
-      assertNull(termination.export().notificationTime(),
+      assertNull(
+          termination.export().notificationTime(),
           () -> "Notification time should be reset to null!");
     }
 
@@ -873,20 +813,20 @@ class TerminationTest {
     @MethodSource("statusAllowedToUpdatePhoneNumber")
     void shallResetReminderTimeWhenPhoneNumberIsUpdated(TerminationStatus terminationStatus) {
       final var newPhoneNumber = new PhoneNumber("NewPhoneNumber");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .reminderTime(LocalDateTime.now())
-          .create();
+      final var termination =
+          defaultTerminationBuilder()
+              .status(terminationStatus)
+              .reminderTime(LocalDateTime.now())
+              .create();
 
       termination.update(
           termination.careProvider().hsaId(),
           termination.export().organizationRepresentative().personId(),
           termination.export().organizationRepresentative().emailAddress(),
-          newPhoneNumber
-      );
+          newPhoneNumber);
 
-      assertNull(termination.export().reminderTime(),
-          () -> "Reminder time should be reset to null!");
+      assertNull(
+          termination.export().reminderTime(), () -> "Reminder time should be reset to null!");
     }
   }
 
@@ -902,8 +842,7 @@ class TerminationTest {
           TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED,
           TerminationStatus.EXPORTED,
           TerminationStatus.NOTIFICATION_SENT,
-          TerminationStatus.REMINDER_SENT
-      );
+          TerminationStatus.REMINDER_SENT);
     }
 
     @ParameterizedTest
@@ -913,16 +852,9 @@ class TerminationTest {
       final var newPersonId = new PersonId("NewPersonId");
       final var newEmailAddress = new EmailAddress("NewEmailAddress");
       final var newPhoneNumber = new PhoneNumber("NewPhoneNumber");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
-      termination.update(
-          newHsaId,
-          newPersonId,
-          newEmailAddress,
-          newPhoneNumber
-      );
+      termination.update(newHsaId, newPersonId, newEmailAddress, newPhoneNumber);
 
       assertEquals(newHsaId, termination.careProvider().hsaId());
     }
@@ -934,19 +866,11 @@ class TerminationTest {
       final var newPersonId = new PersonId("NewPersonId");
       final var newEmailAddress = new EmailAddress("NewEmailAddress");
       final var newPhoneNumber = new PhoneNumber("NewPhoneNumber");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
-      termination.update(
-          newHsaId,
-          newPersonId,
-          newEmailAddress,
-          newPhoneNumber
-      );
+      termination.update(newHsaId, newPersonId, newEmailAddress, newPhoneNumber);
 
-      assertEquals(newPersonId,
-          termination.export().organizationRepresentative().personId());
+      assertEquals(newPersonId, termination.export().organizationRepresentative().personId());
     }
 
     @ParameterizedTest
@@ -956,19 +880,12 @@ class TerminationTest {
       final var newPersonId = new PersonId("NewPersonId");
       final var newEmailAddress = new EmailAddress("NewEmailAddress");
       final var newPhoneNumber = new PhoneNumber("NewPhoneNumber");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
-      termination.update(
-          newHsaId,
-          newPersonId,
-          newEmailAddress,
-          newPhoneNumber
-      );
+      termination.update(newHsaId, newPersonId, newEmailAddress, newPhoneNumber);
 
-      assertEquals(newEmailAddress,
-          termination.export().organizationRepresentative().emailAddress());
+      assertEquals(
+          newEmailAddress, termination.export().organizationRepresentative().emailAddress());
     }
 
     @ParameterizedTest
@@ -978,19 +895,11 @@ class TerminationTest {
       final var newPersonId = new PersonId("NewPersonId");
       final var newEmailAddress = new EmailAddress("NewEmailAddress");
       final var newPhoneNumber = new PhoneNumber("NewPhoneNumber");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
-      termination.update(
-          newHsaId,
-          newPersonId,
-          newEmailAddress,
-          newPhoneNumber
-      );
+      termination.update(newHsaId, newPersonId, newEmailAddress, newPhoneNumber);
 
-      assertEquals(newPhoneNumber,
-          termination.export().organizationRepresentative().phoneNumber());
+      assertEquals(newPhoneNumber, termination.export().organizationRepresentative().phoneNumber());
     }
 
     Stream<TerminationStatus> statusToResetTermination() {
@@ -1000,8 +909,7 @@ class TerminationTest {
           TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED,
           TerminationStatus.EXPORTED,
           TerminationStatus.NOTIFICATION_SENT,
-          TerminationStatus.REMINDER_SENT
-      );
+          TerminationStatus.REMINDER_SENT);
     }
 
     @ParameterizedTest
@@ -1011,16 +919,9 @@ class TerminationTest {
       final var newPersonId = new PersonId("NewPersonId");
       final var newEmailAddress = new EmailAddress("NewEmailAddress");
       final var newPhoneNumber = new PhoneNumber("NewPhoneNumber");
-      final var termination = defaultTerminationBuilder()
-          .status(terminationStatus)
-          .create();
+      final var termination = defaultTerminationBuilder().status(terminationStatus).create();
 
-      termination.update(
-          newHsaId,
-          newPersonId,
-          newEmailAddress,
-          newPhoneNumber
-      );
+      termination.update(newHsaId, newPersonId, newEmailAddress, newPhoneNumber);
 
       assertEquals(TerminationStatus.CREATED, termination.status());
     }

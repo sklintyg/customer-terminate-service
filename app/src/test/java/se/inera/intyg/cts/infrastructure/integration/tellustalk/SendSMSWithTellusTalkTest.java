@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.integration.tellustalk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,8 +40,8 @@ import se.inera.intyg.cts.infrastructure.integration.tellustalk.dto.TellusTalkRe
 @ExtendWith(MockitoExtension.class)
 class SendSMSWithTellusTalkTest {
 
-
-  //Interacting with MockWebServer from our test cases allows our code to use real HTTP calls to a local endpoint.
+  // Interacting with MockWebServer from our test cases allows our code to use real HTTP calls to a
+  // local endpoint.
   public static MockWebServer mockBackEnd;
 
   private SendSMSWithTellusTalk sendSMS;
@@ -45,8 +63,15 @@ class SendSMSWithTellusTalkTest {
 
   @BeforeEach
   void initialize() {
-    sendSMS = new SendSMSWithTellusTalk(WebClient.create(baseUrl), scheme, baseUrl,
-        mockBackEnd.getPort(), tellustalkSendEndpoint, "Username", "Password");
+    sendSMS =
+        new SendSMSWithTellusTalk(
+            WebClient.create(baseUrl),
+            scheme,
+            baseUrl,
+            mockBackEnd.getPort(),
+            tellustalkSendEndpoint,
+            "Username",
+            "Password");
   }
 
   @Test
@@ -56,8 +81,10 @@ class SendSMSWithTellusTalkTest {
     String message = "Hej hej";
     TellusTalkResponseDTO smsResponseDTO = new TellusTalkResponseDTO("JobId", "logHref");
     ObjectMapper objectMapper = new ObjectMapper();
-    mockBackEnd.enqueue(new MockResponse().setBody(objectMapper.writeValueAsString(smsResponseDTO))
-        .addHeader("Content-Type", "application/json"));
+    mockBackEnd.enqueue(
+        new MockResponse()
+            .setBody(objectMapper.writeValueAsString(smsResponseDTO))
+            .addHeader("Content-Type", "application/json"));
 
     TellusTalkResponseDTO response = sendSMS.sendSMS(phoneNumber, message);
 

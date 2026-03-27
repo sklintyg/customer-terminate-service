@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.persistence.entity;
 
 import se.inera.intyg.cts.domain.model.EraseService;
@@ -29,21 +47,18 @@ public class TerminationEntityMapper {
         new ExportEmbeddable(
             termination.export().certificateSummary().total(),
             termination.export().certificateSummary().revoked(),
-            termination.export().password() != null ? termination.export().password().password()
+            termination.export().password() != null
+                ? termination.export().password().password()
                 : null,
             termination.export().exportTime(),
             termination.export().notificationTime(),
             termination.export().reminderTime(),
-            termination.export().receiptTime()
-        ),
+            termination.export().receiptTime()),
         termination.erase().eraseServices().stream()
-            .map(eraseService ->
-                new EraseEmbeddable(
-                    eraseService.serviceId().id(),
-                    eraseService.erased())
-            )
-            .toList()
-    );
+            .map(
+                eraseService ->
+                    new EraseEmbeddable(eraseService.serviceId().id(), eraseService.erased()))
+            .toList());
   }
 
   public static Termination toDomain(TerminationEntity terminationEntity) {
@@ -55,8 +70,7 @@ public class TerminationEntityMapper {
         .creatorName(terminationEntity.getCreatorName())
         .careProviderHSAId(terminationEntity.getHsaId())
         .careProviderOrganizationNumber(terminationEntity.getOrganizationNumber())
-        .careProviderOrganizationRepresentativePersonId(
-            terminationEntity.getPersonId())
+        .careProviderOrganizationRepresentativePersonId(terminationEntity.getPersonId())
         .careProviderOrganizationRepresentativePhoneNumber(terminationEntity.getPhoneNumber())
         .careProviderOrganizationRepresentativeEmailAddress(terminationEntity.getEmailAddress())
         .status(TerminationStatus.valueOf(terminationEntity.getStatus()))
@@ -69,13 +83,12 @@ public class TerminationEntityMapper {
         .receiptTime(terminationEntity.getExport().getReceiptTime())
         .eraseServices(
             terminationEntity.getEraseList().stream()
-                .map(eraseEmbeddable ->
-                    new EraseService(
-                        new ServiceId(eraseEmbeddable.getServiceId()),
-                        eraseEmbeddable.isErased()
-                    ))
-                .toList()
-        )
+                .map(
+                    eraseEmbeddable ->
+                        new EraseService(
+                            new ServiceId(eraseEmbeddable.getServiceId()),
+                            eraseEmbeddable.isErased()))
+                .toList())
         .create();
   }
 }

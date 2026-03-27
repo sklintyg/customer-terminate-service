@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,12 +60,9 @@ import se.inera.intyg.cts.infrastructure.persistence.repository.TerminationEntit
 class CreateEncryptedZipPackageTest {
 
   public static final String DESTINATION_DIRECTORY = "./destination_directory";
-  @Mock
-  private TerminationEntityRepository terminationEntityRepository;
-  @Mock
-  private CertificateEntityRepository certificateEntityRepository;
-  @Mock
-  private CertificateTextEntityRepository certificateTextEntityRepository;
+  @Mock private TerminationEntityRepository terminationEntityRepository;
+  @Mock private CertificateEntityRepository certificateEntityRepository;
+  @Mock private CertificateTextEntityRepository certificateTextEntityRepository;
   private CreateEncryptedZipPackage createEncryptedZipPackage;
 
   private Termination termination;
@@ -61,22 +76,25 @@ class CreateEncryptedZipPackageTest {
   @BeforeEach
   void setUp() {
 
-    createEncryptedZipPackage = new CreateEncryptedZipPackage(
-        terminationEntityRepository,
-        certificateEntityRepository,
-        certificateTextEntityRepository,
-        "./"
-    );
+    createEncryptedZipPackage =
+        new CreateEncryptedZipPackage(
+            terminationEntityRepository,
+            certificateEntityRepository,
+            certificateTextEntityRepository,
+            "./");
 
     termination = defaultTermination();
     terminationEntity = defaultTerminationEntity();
-    when(terminationEntityRepository.findByTerminationId(termination.terminationId().id())).thenReturn(Optional.of(terminationEntity));
+    when(terminationEntityRepository.findByTerminationId(termination.terminationId().id()))
+        .thenReturn(Optional.of(terminationEntity));
 
     certificates = certificateEntities(terminationEntity, 20, 5);
-    when(certificateEntityRepository.findAllByTermination(terminationEntity)).thenReturn(certificates);
+    when(certificateEntityRepository.findAllByTermination(terminationEntity))
+        .thenReturn(certificates);
 
     certificateTexts = certificateTextEntities(terminationEntity, 10);
-    when(certificateTextEntityRepository.findAllByTermination(terminationEntity)).thenReturn(certificateTexts);
+    when(certificateTextEntityRepository.findAllByTermination(terminationEntity))
+        .thenReturn(certificateTexts);
   }
 
   @AfterEach
@@ -117,10 +135,8 @@ class CreateEncryptedZipPackageTest {
   @Test
   void shallReturnZipFileThatCannotBeUnzippedWithoutPassword() {
     zipFile = createEncryptedZipPackage.create(termination, password);
-    assertThrows(ZipException.class,
-        () -> new ZipFile(zipFile.getPath())
-            .extractAll(DESTINATION_DIRECTORY)
-    );
+    assertThrows(
+        ZipException.class, () -> new ZipFile(zipFile.getPath()).extractAll(DESTINATION_DIRECTORY));
   }
 
   @Test
@@ -133,70 +149,77 @@ class CreateEncryptedZipPackageTest {
   @Test
   void shallReturnZipFileThatCannotBeUnzippedWithIncorrectPassword() {
     zipFile = createEncryptedZipPackage.create(termination, password);
-    assertThrows(ZipException.class,
-        () -> new ZipFile(zipFile.getPath(), "incorrectPassword".toCharArray())
-            .extractAll(DESTINATION_DIRECTORY)
-    );
+    assertThrows(
+        ZipException.class,
+        () ->
+            new ZipFile(zipFile.getPath(), "incorrectPassword".toCharArray())
+                .extractAll(DESTINATION_DIRECTORY));
   }
 
   @Test
   void shallReturnZipFileThatIncludesCertificateDirectory() throws ZipException {
     zipFile = createEncryptedZipPackage.create(termination, password);
-    final var fileHeaders = new ZipFile(zipFile.getPath(),
-        password.password().toCharArray()).getFileHeaders().stream()
-        .map(AbstractFileHeader::getFileName)
-        .toList();
+    final var fileHeaders =
+        new ZipFile(zipFile.getPath(), password.password().toCharArray())
+            .getFileHeaders().stream().map(AbstractFileHeader::getFileName).toList();
 
     final var certificatesDirectory = termination.careProvider().hsaId().id() + "/intyg/";
-    assertTrue(fileHeaders.contains(certificatesDirectory),
-        () -> String.format("Missing directory %s in zip file containing %s",
-            certificatesDirectory, fileHeaders));
+    assertTrue(
+        fileHeaders.contains(certificatesDirectory),
+        () ->
+            String.format(
+                "Missing directory %s in zip file containing %s",
+                certificatesDirectory, fileHeaders));
   }
 
   @Test
   void shallReturnZipFileThatIncludesCertificateTextDirectory() throws ZipException {
     zipFile = createEncryptedZipPackage.create(termination, password);
-    final var fileHeaders = new ZipFile(zipFile.getPath(),
-        password.password().toCharArray()).getFileHeaders().stream()
-        .map(AbstractFileHeader::getFileName)
-        .toList();
+    final var fileHeaders =
+        new ZipFile(zipFile.getPath(), password.password().toCharArray())
+            .getFileHeaders().stream().map(AbstractFileHeader::getFileName).toList();
 
     final var certificatesDirectory = termination.careProvider().hsaId().id() + "/texter/";
-    assertTrue(fileHeaders.contains(certificatesDirectory),
-        () -> String.format("Missing directory %s in zip file containing %s",
-            certificatesDirectory, fileHeaders));
+    assertTrue(
+        fileHeaders.contains(certificatesDirectory),
+        () ->
+            String.format(
+                "Missing directory %s in zip file containing %s",
+                certificatesDirectory, fileHeaders));
   }
 
   @Test
   void shallReturnZipFileThatIncludesCertificates() throws ZipException {
     zipFile = createEncryptedZipPackage.create(termination, password);
-    final var fileHeaders = new ZipFile(zipFile.getPath(),
-        password.password().toCharArray()).getFileHeaders().stream()
-        .map(AbstractFileHeader::getFileName)
-        .toList();
+    final var fileHeaders =
+        new ZipFile(zipFile.getPath(), password.password().toCharArray())
+            .getFileHeaders().stream().map(AbstractFileHeader::getFileName).toList();
 
     for (CertificateEntity certificateEntity : certificates) {
       assertTrue(
           fileHeaders.stream().anyMatch(s -> s.contains(certificateFileName(certificateEntity))),
-          () -> String.format("Certificate with filename %s is missing in zip file",
-              certificateFileName(certificateEntity)));
+          () ->
+              String.format(
+                  "Certificate with filename %s is missing in zip file",
+                  certificateFileName(certificateEntity)));
     }
   }
 
   @Test
   void shallReturnZipFileThatIncludesCertificateTexts() throws ZipException {
     zipFile = createEncryptedZipPackage.create(termination, password);
-    final var fileHeaders = new ZipFile(zipFile.getPath(),
-        password.password().toCharArray()).getFileHeaders().stream()
-        .map(AbstractFileHeader::getFileName)
-        .toList();
+    final var fileHeaders =
+        new ZipFile(zipFile.getPath(), password.password().toCharArray())
+            .getFileHeaders().stream().map(AbstractFileHeader::getFileName).toList();
 
     for (CertificateTextEntity certificateEntity : certificateTexts) {
       assertTrue(
           fileHeaders.stream()
               .anyMatch(s -> s.contains(certificateTextFileName(certificateEntity))),
-          () -> String.format("CertificateText with filename %s is missing in zip file",
-              certificateTextFileName(certificateEntity)));
+          () ->
+              String.format(
+                  "CertificateText with filename %s is missing in zip file",
+                  certificateTextFileName(certificateEntity)));
     }
   }
 
@@ -209,7 +232,9 @@ class CreateEncryptedZipPackageTest {
   }
 
   private String certificateTextFileName(CertificateTextEntity certificateTextEntity) {
-    return certificateTextEntity.getCertificateType() + "-"
-        + certificateTextEntity.getCertificateTypeVersion() + XML_EXTENSION;
+    return certificateTextEntity.getCertificateType()
+        + "-"
+        + certificateTextEntity.getCertificateTypeVersion()
+        + XML_EXTENSION;
   }
 }

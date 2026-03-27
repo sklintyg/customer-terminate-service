@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.integration.sjut;
 
 import static se.inera.intyg.cts.logging.MdcLogConstants.EVENT_TYPE_CHANGE;
@@ -68,16 +86,19 @@ public class UploadPackageToSjut implements UploadPackage {
     multipartBodyBuilder.part(FILE_PART, resource);
     multipartBodyBuilder.part(METADATA_PART, packageMetadata);
 
-    final var clientReponse = webClient.post()
-        .uri(this::getUri)
-        .body(BodyInserters.fromMultipartData(multipartBodyBuilder.build()))
-        .exchangeToMono(clientResponse ->
-            handleResponse(termination, clientResponse))
-        .share()
-        .block();
+    final var clientReponse =
+        webClient
+            .post()
+            .uri(this::getUri)
+            .body(BodyInserters.fromMultipartData(multipartBodyBuilder.build()))
+            .exchangeToMono(clientResponse -> handleResponse(termination, clientResponse))
+            .share()
+            .block();
 
-    LOG.info("File for termination '{}' was uploaded to Sjut with result '{}'",
-        termination.terminationId().id(), clientReponse);
+    LOG.info(
+        "File for termination '{}' was uploaded to Sjut with result '{}'",
+        termination.terminationId().id(),
+        clientReponse);
   }
 
   private Resource getResource(File packageToUpload) {
@@ -90,15 +111,11 @@ public class UploadPackageToSjut implements UploadPackage {
         termination.careProvider().organizationNumber().number(),
         termination.export().organizationRepresentative().personId().id(),
         sourceSystem,
-        receiptBaseUrl + termination.terminationId().id()
-    );
+        receiptBaseUrl + termination.terminationId().id());
   }
 
   private URI getUri(UriBuilder uriBuilder) {
-    uriBuilder = uriBuilder
-        .scheme(scheme)
-        .host(baseUrl)
-        .path(uploadEndpoint);
+    uriBuilder = uriBuilder.scheme(scheme).host(baseUrl).path(uploadEndpoint);
 
     if (!port.isBlank()) {
       uriBuilder.port(port);
@@ -112,9 +129,10 @@ public class UploadPackageToSjut implements UploadPackage {
       return clientResponse.bodyToMono(String.class);
     }
 
-    final var message = String.format(
-        "Could not upload file for termination '%s' to Sjut. Received status code '%s'.",
-        termination.terminationId().id(), clientResponse.statusCode());
+    final var message =
+        String.format(
+            "Could not upload file for termination '%s' to Sjut. Received status code '%s'.",
+            termination.terminationId().id(), clientResponse.statusCode());
     LOG.error(message);
     throw new ServiceException(message);
   }

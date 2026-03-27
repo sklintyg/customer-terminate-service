@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.testability.api;
 
 import java.time.LocalDateTime;
@@ -40,17 +58,21 @@ public class TestabilityTerminationController {
   }
 
   @PostMapping("/{terminationId}/certificates")
-  void saveCertificates(@PathVariable UUID terminationId,
+  void saveCertificates(
+      @PathVariable UUID terminationId,
       @RequestBody List<CertificateXmlDTO> certificateXmlDTOList) {
-    LOG.info("Save '{}' certificates for termination '{}'", certificateXmlDTOList.size(),
-        terminationId);
+    LOG.info(
+        "Save '{}' certificates for termination '{}'", certificateXmlDTOList.size(), terminationId);
     testabilityTerminationService.saveCertificates(terminationId, certificateXmlDTOList);
   }
 
   @PostMapping("/{terminationId}/certificatetexts")
-  void saveCertificateTexts(@PathVariable UUID terminationId,
+  void saveCertificateTexts(
+      @PathVariable UUID terminationId,
       @RequestBody List<CertificateTextDTO> certificateTextDTOList) {
-    LOG.info("Save '{}' certificate texts for termination '{}'", certificateTextDTOList.size(),
+    LOG.info(
+        "Save '{}' certificate texts for termination '{}'",
+        certificateTextDTOList.size(),
         terminationId);
     testabilityTerminationService.saveCertificateTexts(terminationId, certificateTextDTOList);
   }
@@ -62,8 +84,8 @@ public class TestabilityTerminationController {
   }
 
   @PostMapping("/{terminationId}/sendNotification")
-  void setAsNotificationSent(@PathVariable UUID terminationId,
-      @RequestBody LocalDateTime notificationTime) {
+  void setAsNotificationSent(
+      @PathVariable UUID terminationId, @RequestBody LocalDateTime notificationTime) {
     LOG.info("Set termination '{}' to notification sent at '{}'", terminationId, notificationTime);
     testabilityTerminationService.setAsNotificationSent(terminationId, notificationTime);
   }

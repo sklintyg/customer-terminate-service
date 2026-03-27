@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.persistence;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,10 +45,8 @@ import se.inera.intyg.cts.infrastructure.persistence.repository.TerminationEntit
 @DataJpaTest
 class JpaCertificateRepositoryTest {
 
-  @Autowired
-  private TerminationEntityRepository terminationEntityRepository;
-  @Autowired
-  private CertificateEntityRepository certificateEntityRepository;
+  @Autowired private TerminationEntityRepository terminationEntityRepository;
+  @Autowired private CertificateEntityRepository certificateEntityRepository;
   private JpaCertificateRepository jpaCertificateRepository;
   private Termination termination;
   private TerminationEntity terminationEntity;
@@ -38,9 +54,8 @@ class JpaCertificateRepositoryTest {
 
   @BeforeEach
   void setUp() {
-    jpaCertificateRepository = new JpaCertificateRepository(
-        certificateEntityRepository,
-        terminationEntityRepository);
+    jpaCertificateRepository =
+        new JpaCertificateRepository(certificateEntityRepository, terminationEntityRepository);
     termination = defaultTermination();
     terminationEntity = defaultTerminationEntity();
   }
@@ -73,8 +88,8 @@ class JpaCertificateRepositoryTest {
 
     certificateEntityRepository.saveAll(certificateEntities(savedTerminationEntity, 3, 0));
 
-    termination = defaultTerminationBuilder().terminationId(terminationEntity.getTerminationId())
-        .create();
+    termination =
+        defaultTerminationBuilder().terminationId(terminationEntity.getTerminationId()).create();
     assertEquals(3, jpaCertificateRepository.get(termination).size());
   }
 
@@ -91,8 +106,8 @@ class JpaCertificateRepositoryTest {
 
     certificateEntityRepository.saveAll(certificateEntities(savedTerminationEntity, 3, 0));
 
-    termination = defaultTerminationBuilder().terminationId(terminationEntity.getTerminationId())
-        .create();
+    termination =
+        defaultTerminationBuilder().terminationId(terminationEntity.getTerminationId()).create();
     jpaCertificateRepository.remove(termination);
 
     assertEquals(0, jpaCertificateRepository.get(termination).size());
@@ -100,8 +115,7 @@ class JpaCertificateRepositoryTest {
 
   @Test
   void shallThrowExceptionForMissingTermination() {
-    assertThrows(IllegalArgumentException.class,
-        () -> jpaCertificateRepository.remove(termination)
-    );
+    assertThrows(
+        IllegalArgumentException.class, () -> jpaCertificateRepository.remove(termination));
   }
 }

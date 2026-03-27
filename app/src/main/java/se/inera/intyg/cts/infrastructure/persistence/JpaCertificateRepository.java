@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.persistence;
 
 import static se.inera.intyg.cts.infrastructure.persistence.entity.CertificateEntityMapper.toEntity;
@@ -20,7 +38,8 @@ public class JpaCertificateRepository implements CertificateRepository {
   private final CertificateEntityRepository certificateEntityRepository;
   private final TerminationEntityRepository terminationEntityRepository;
 
-  public JpaCertificateRepository(CertificateEntityRepository certificateEntityRepository,
+  public JpaCertificateRepository(
+      CertificateEntityRepository certificateEntityRepository,
       TerminationEntityRepository terminationEntityRepository) {
     this.certificateEntityRepository = certificateEntityRepository;
     this.terminationEntityRepository = terminationEntityRepository;
@@ -33,14 +52,13 @@ public class JpaCertificateRepository implements CertificateRepository {
     certificateEntityRepository.saveAll(
         certificateList.stream()
             .map(certificate -> toEntity(certificate, terminationEntity))
-            .collect(Collectors.toList())
-    );
+            .collect(Collectors.toList()));
   }
 
   @Override
   public List<Certificate> get(Termination termination) {
-    final var terminationEntity = terminationEntityRepository
-        .findByTerminationId(termination.terminationId().id());
+    final var terminationEntity =
+        terminationEntityRepository.findByTerminationId(termination.terminationId().id());
 
     if (terminationEntity.isEmpty()) {
       return Collections.emptyList();
@@ -53,15 +71,18 @@ public class JpaCertificateRepository implements CertificateRepository {
 
   @Override
   public void remove(Termination termination) {
-    final var terminationEntity = terminationEntityRepository
-        .findByTerminationId(termination.terminationId().id())
-        .orElseThrow(() -> new IllegalArgumentException(
-            String.format("Termination with id '%s' doesn't exists!",
-                termination.terminationId().id())
-        ));
+    final var terminationEntity =
+        terminationEntityRepository
+            .findByTerminationId(termination.terminationId().id())
+            .orElseThrow(
+                () ->
+                    new IllegalArgumentException(
+                        String.format(
+                            "Termination with id '%s' doesn't exists!",
+                            termination.terminationId().id())));
 
-    final var certificateEntities = certificateEntityRepository.findAllByTermination(
-        terminationEntity);
+    final var certificateEntities =
+        certificateEntityRepository.findAllByTermination(terminationEntity);
 
     if (certificateEntities.size() > 0) {
       certificateEntityRepository.deleteAll(certificateEntities);
@@ -71,11 +92,11 @@ public class JpaCertificateRepository implements CertificateRepository {
   private TerminationEntity getTerminationEntity(Termination termination) {
     return terminationEntityRepository
         .findByTerminationId(termination.terminationId().id())
-        .orElseThrow(() ->
-            new IllegalArgumentException(
-                String.format("Termination with id '%s' doesn't exists!",
-                    termination.terminationId().id())
-            )
-        );
+        .orElseThrow(
+            () ->
+                new IllegalArgumentException(
+                    String.format(
+                        "Termination with id '%s' doesn't exists!",
+                        termination.terminationId().id())));
   }
 }

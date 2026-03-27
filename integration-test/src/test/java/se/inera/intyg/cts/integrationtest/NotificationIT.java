@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.integrationtest;
 
 import static io.restassured.RestAssured.given;
@@ -20,13 +38,12 @@ public class NotificationIT {
 
   private TestData testData;
 
-  private static final TypeRef<List<Map<String, List<String>>>> LIST_MESSAGES = new TypeRef<>() {
-  };
+  private static final TypeRef<List<Map<String, List<String>>>> LIST_MESSAGES = new TypeRef<>() {};
 
   @BeforeEach
   void setUp() {
-    RestAssured.baseURI = System.getProperty("integration.tests.baseUrl",
-        "http://cts.localtest.me");
+    RestAssured.baseURI =
+        System.getProperty("integration.tests.baseUrl", "http://cts.localtest.me");
     testData = TestData.create();
   }
 
@@ -59,8 +76,8 @@ public class NotificationIT {
       final var notificationSentBySMS = getNotificationSentBySMS();
 
       assertTrue(
-          notificationSentBySMS.startsWith("Hej, du har namngivits som ansvarig för att hämta "
-              + "ett exportfilspaket"));
+          notificationSentBySMS.startsWith(
+              "Hej, du har namngivits som ansvarig för att hämta " + "ett exportfilspaket"));
     }
 
     @Test
@@ -75,16 +92,13 @@ public class NotificationIT {
           .notificationSent(LocalDateTime.now().minusDays(15L))
           .setup();
 
-      given()
-          .when()
-          .post("/api/v1/exports/sendReminder")
-          .then()
-          .statusCode(HttpStatus.OK.value());
+      given().when().post("/api/v1/exports/sendReminder").then().statusCode(HttpStatus.OK.value());
 
       final var reminderSentBySMS = getNotificationSentBySMS();
 
-      assertTrue(reminderSentBySMS.startsWith("PÅMINNELSE Du har namngivits som ansvarig för att "
-          + "hämta ett exportfilspaket "));
+      assertTrue(
+          reminderSentBySMS.startsWith(
+              "PÅMINNELSE Du har namngivits som ansvarig för att " + "hämta ett exportfilspaket "));
     }
 
     @Test
@@ -99,11 +113,7 @@ public class NotificationIT {
           .notificationSent(LocalDateTime.now().minusDays(13L))
           .setup();
 
-      given()
-          .when()
-          .post("/api/v1/exports/sendReminder")
-          .then()
-          .statusCode(HttpStatus.OK.value());
+      given().when().post("/api/v1/exports/sendReminder").then().statusCode(HttpStatus.OK.value());
 
       final var reminderSentBySMS = getNotificationSentBySMS();
 
@@ -116,14 +126,15 @@ public class NotificationIT {
 
     @Test
     void shouldSendEmailNotificationToOrganizationRepresentativeWhenUploadedPackage() {
-      final var data = testData
-          .defaultTermination()
-          .certificates(50)
-          .collectCertificates()
-          .certificateTexts(10)
-          .collectCertificateTexts()
-          .uploadPackage("password")
-          .setup();
+      final var data =
+          testData
+              .defaultTermination()
+              .certificates(50)
+              .collectCertificates()
+              .certificateTexts(10)
+              .collectCertificateTexts()
+              .uploadPackage("password")
+              .setup();
 
       given()
           .when()
@@ -146,29 +157,28 @@ public class NotificationIT {
           () -> assertEquals("Exportfilspaket tillgängligt", subject),
           () -> assertEquals("no-reply.intyg@dev.cts.se", senders.get(0)),
           () -> assertEquals("email@address.se", recipients.get(0)),
-          () -> assertTrue(content.startsWith("<p>Hej, du har "
-              + "namngivits som ansvarig för att hämta ett exportfilspaket")),
-          () -> assertEquals("NOTIFICATION_SENT", status)
-      );
+          () ->
+              assertTrue(
+                  content.startsWith(
+                      "<p>Hej, du har "
+                          + "namngivits som ansvarig för att hämta ett exportfilspaket")),
+          () -> assertEquals("NOTIFICATION_SENT", status));
     }
 
     @Test
     void shouldSendEmailReminderToOrganizationRepresentativeAfter14Days() {
-      final var data = testData
-          .defaultTermination()
-          .certificates(50)
-          .collectCertificates()
-          .certificateTexts(10)
-          .collectCertificateTexts()
-          .uploadPackage("password")
-          .notificationSent(LocalDateTime.now().minusDays(15L))
-          .setup();
+      final var data =
+          testData
+              .defaultTermination()
+              .certificates(50)
+              .collectCertificates()
+              .certificateTexts(10)
+              .collectCertificateTexts()
+              .uploadPackage("password")
+              .notificationSent(LocalDateTime.now().minusDays(15L))
+              .setup();
 
-      given()
-          .when()
-          .post("/api/v1/exports/sendReminder")
-          .then()
-          .statusCode(HttpStatus.OK.value());
+      given().when().post("/api/v1/exports/sendReminder").then().statusCode(HttpStatus.OK.value());
 
       final var reminders = getNotificationSentByEmail();
 
@@ -185,38 +195,34 @@ public class NotificationIT {
           () -> assertEquals("Påminnelse - Exportfilspaket tillgängligt", subject),
           () -> assertEquals("no-reply.intyg@dev.cts.se", senders.get(0)),
           () -> assertEquals("email@address.se", recipients.get(0)),
-          () -> assertTrue(content.startsWith("<p>PÅMINNELSE<br>Du "
-              + "har namngivits som ansvarig för att hämta ett exportfilspaket")),
-          () -> assertEquals("REMINDER_SENT", status)
-
-      );
+          () ->
+              assertTrue(
+                  content.startsWith(
+                      "<p>PÅMINNELSE<br>Du "
+                          + "har namngivits som ansvarig för att hämta ett exportfilspaket")),
+          () -> assertEquals("REMINDER_SENT", status));
     }
 
     @Test
     void shouldNotSendEmailReminderToOrganizationRepresentativeBefore14Days() {
-      final var data = testData
-          .defaultTermination()
-          .certificates(50)
-          .collectCertificates()
-          .certificateTexts(10)
-          .collectCertificateTexts()
-          .uploadPackage("password")
-          .notificationSent(LocalDateTime.now().minusDays(13L))
-          .setup();
+      final var data =
+          testData
+              .defaultTermination()
+              .certificates(50)
+              .collectCertificates()
+              .certificateTexts(10)
+              .collectCertificateTexts()
+              .uploadPackage("password")
+              .notificationSent(LocalDateTime.now().minusDays(13L))
+              .setup();
 
-      given()
-          .when()
-          .post("/api/v1/exports/sendReminder")
-          .then()
-          .statusCode(HttpStatus.OK.value());
+      given().when().post("/api/v1/exports/sendReminder").then().statusCode(HttpStatus.OK.value());
 
       final var reminders = getNotificationSentByEmail();
 
       final var status = getStatus(data.terminationIds().get(0));
       assertAll(
-          () -> assertEquals(0, reminders.size()),
-          () -> assertEquals("NOTIFICATION_SENT", status)
-      );
+          () -> assertEquals(0, reminders.size()), () -> assertEquals("NOTIFICATION_SENT", status));
     }
   }
 
@@ -246,7 +252,7 @@ public class NotificationIT {
 
   private String getStatus(String terminationId) {
     return given()
-        //.baseUri("http://localhost:18010")
+        // .baseUri("http://localhost:18010")
         .pathParam("terminationId", terminationId)
         .when()
         .get("/testability/v1/terminations/{terminationId}/status")

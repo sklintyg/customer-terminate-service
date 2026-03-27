@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.configuration;
 
 import java.util.List;
@@ -30,20 +48,26 @@ import se.inera.intyg.cts.domain.service.UploadPackage;
 public class AppConfig {
 
   @Bean
-  public CollectExportContent collectExportContent(TerminationRepository terminationRepository,
+  public CollectExportContent collectExportContent(
+      TerminationRepository terminationRepository,
       CertificateBatchRepository certificationBatchRepository,
       CertificateRepository certificationRepository,
       CertificateTextRepository certificateTextRepository) {
-    return new CollectExportContentImpl(terminationRepository, certificationBatchRepository,
-        certificationRepository, certificateTextRepository);
+    return new CollectExportContentImpl(
+        terminationRepository,
+        certificationBatchRepository,
+        certificationRepository,
+        certificateTextRepository);
   }
 
   @Bean
-  public ExportPackage exportPackage(CreatePackage createPackage,
+  public ExportPackage exportPackage(
+      CreatePackage createPackage,
       UploadPackage uploadPackage,
-      TerminationRepository terminationRepository, PasswordGenerator passwordGenerator) {
-    return new ExportPackageImpl(createPackage, uploadPackage, terminationRepository,
-        passwordGenerator);
+      TerminationRepository terminationRepository,
+      PasswordGenerator passwordGenerator) {
+    return new ExportPackageImpl(
+        createPackage, uploadPackage, terminationRepository, passwordGenerator);
   }
 
   @Bean
@@ -51,27 +75,28 @@ public class AppConfig {
       List<EraseDataInService> eraseDataInServices,
       CertificateBatchRepository certificateBatchRepository,
       TerminationRepository terminationRepository) {
-    return new EraseDataForCareProviderImpl(eraseDataInServices, certificateBatchRepository,
-        terminationRepository);
+    return new EraseDataForCareProviderImpl(
+        eraseDataInServices, certificateBatchRepository, terminationRepository);
   }
 
   @Bean
-  public SendPackageNotification sendNotifications(SendNotification sendNotification,
-      TerminationRepository terminationRepository) {
+  public SendPackageNotification sendNotifications(
+      SendNotification sendNotification, TerminationRepository terminationRepository) {
     return new SendPackageNotificationImpl(sendNotification, terminationRepository);
   }
 
   @Bean
-  public SendPackagePassword sendPackagePassword(SendPassword sendPassword,
-      TerminationRepository terminationRepository) {
+  public SendPackagePassword sendPackagePassword(
+      SendPassword sendPassword, TerminationRepository terminationRepository) {
     return new SendPackagePasswordImpl(sendPassword, terminationRepository);
   }
 
   @Bean
-  public UpdateTermination updateTermination(TerminationRepository terminationRepository,
+  public UpdateTermination updateTermination(
+      TerminationRepository terminationRepository,
       CertificateRepository certificateRepository,
       CertificateTextRepository certificateTextRepository) {
-    return new UpdateTerminationImpl(terminationRepository, certificateRepository,
-        certificateTextRepository);
+    return new UpdateTerminationImpl(
+        terminationRepository, certificateRepository, certificateTextRepository);
   }
 }

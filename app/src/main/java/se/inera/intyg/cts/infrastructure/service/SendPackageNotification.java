@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.service;
 
 import org.slf4j.Logger;
@@ -44,8 +62,8 @@ public class SendPackageNotification implements SendNotification {
   private final SendEmail sendEmail;
   private final SmsPhoneNumberFormatter smsPhoneNumberFormatter;
 
-  public SendPackageNotification(SendSMS sendSMS, SendEmail sendEmail,
-      SmsPhoneNumberFormatter smsPhoneNumberFormatter) {
+  public SendPackageNotification(
+      SendSMS sendSMS, SendEmail sendEmail, SmsPhoneNumberFormatter smsPhoneNumberFormatter) {
     this.sendSMS = sendSMS;
     this.sendEmail = sendEmail;
     this.smsPhoneNumberFormatter = smsPhoneNumberFormatter;
@@ -54,8 +72,8 @@ public class SendPackageNotification implements SendNotification {
   @Override
   public boolean sendNotification(Termination termination) {
     final var smsSuccess = sendSms(notificationSmsContent, NOTIFICATION, termination);
-    final var emailSuccess = sendEmail(notificationEmailContent, NOTIFICATION, notificationSubject,
-        termination);
+    final var emailSuccess =
+        sendEmail(notificationEmailContent, NOTIFICATION, notificationSubject, termination);
 
     return smsSuccess || emailSuccess;
   }
@@ -63,19 +81,22 @@ public class SendPackageNotification implements SendNotification {
   @Override
   public boolean sendReminder(Termination termination) {
     final var smsSuccess = sendSms(reminderSmsContent, REMINDER, termination);
-    final var emailSuccess = sendEmail(reminderEmailContent, REMINDER, reminderSubject,
-        termination);
+    final var emailSuccess =
+        sendEmail(reminderEmailContent, REMINDER, reminderSubject, termination);
 
     return smsSuccess || emailSuccess;
   }
 
   private boolean sendSms(String message, String statusType, Termination termination) {
     try {
-      final var phoneNumber = termination.export().organizationRepresentative().phoneNumber()
-          .number();
+      final var phoneNumber =
+          termination.export().organizationRepresentative().phoneNumber().number();
       final var formattedPhoneNumber = smsPhoneNumberFormatter.formatPhoneNumber(phoneNumber);
       final var smsResponseDTO = sendSMS.sendSMS(formattedPhoneNumber, message);
-      logSendSmsSuccess(statusType, termination.terminationId(), smsResponseDTO.job_id(),
+      logSendSmsSuccess(
+          statusType,
+          termination.terminationId(),
+          smsResponseDTO.job_id(),
           smsResponseDTO.log_href());
       return true;
 
@@ -85,14 +106,16 @@ public class SendPackageNotification implements SendNotification {
     }
   }
 
-  private boolean sendEmail(String message, String statusType, String subject,
-      Termination termination) {
+  private boolean sendEmail(
+      String message, String statusType, String subject, Termination termination) {
     try {
-      final var emailAddress = termination.export().organizationRepresentative().emailAddress()
-          .emailAddress();
+      final var emailAddress =
+          termination.export().organizationRepresentative().emailAddress().emailAddress();
 
       if (invalidEmailAddress(emailAddress)) {
-        LOG.error("Failure sending email {} for {}. Email address has invalid format.", statusType,
+        LOG.error(
+            "Failure sending email {} for {}. Email address has invalid format.",
+            statusType,
             termination);
         return false;
       }
@@ -111,18 +134,22 @@ public class SendPackageNotification implements SendNotification {
     return !emailAddress.matches(EMAIL_REGEX);
   }
 
-  private void logSendSmsSuccess(String statusType, TerminationId terminationId,
-      String jobId, String logHref) {
-    LOG.info("Successfully sent sms {} for {} with jobId '{}' and logHref '{}'.", statusType,
-        terminationId.id(), jobId, logHref);
+  private void logSendSmsSuccess(
+      String statusType, TerminationId terminationId, String jobId, String logHref) {
+    LOG.info(
+        "Successfully sent sms {} for {} with jobId '{}' and logHref '{}'.",
+        statusType,
+        terminationId.id(),
+        jobId,
+        logHref);
   }
 
   private void logSendEmailSuccess(String statusType, TerminationId terminationId) {
     LOG.info("Successfully sent email {} for {}.", statusType, terminationId.id());
   }
 
-  private void logSendMessageFailure(String messageType, String statusType,
-      TerminationId terminationId, Exception e) {
+  private void logSendMessageFailure(
+      String messageType, String statusType, TerminationId terminationId, Exception e) {
     LOG.error("Failure sending {} {} for {}.", messageType, statusType, terminationId.id(), e);
   }
 }

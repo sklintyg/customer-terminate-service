@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.integration.intygsstatistik;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,11 +63,9 @@ import se.inera.intyg.cts.infrastructure.persistence.repository.TerminationEntit
 @ExtendWith(MockitoExtension.class)
 class EraseDataInIntygsstatistikTest {
 
-  @Mock
-  private TerminationEntityRepository terminationEntityRepository;
+  @Mock private TerminationEntityRepository terminationEntityRepository;
 
-  @Mock
-  private CertificateEntityRepository certificateEntityRepository;
+  @Mock private CertificateEntityRepository certificateEntityRepository;
 
   private static MockWebServer mockIntygsstatistik;
 
@@ -66,17 +82,25 @@ class EraseDataInIntygsstatistikTest {
   @BeforeEach
   void setUp() throws IOException {
     mockIntygsstatistik = new MockWebServer();
-    ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(
-        ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+    ch.qos.logback.classic.Logger rootLogger =
+        (ch.qos.logback.classic.Logger)
+            LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
     rootLogger.setLevel(Level.toLevel("info"));
     mockIntygsstatistik.start();
 
     final var webClient = WebClient.create();
 
-    eraseDataInIntygsstatistik = new EraseDataInIntygsstatistik(terminationEntityRepository,
-        certificateEntityRepository, webClient, SCHEME, BASE_URL,
-        Integer.toString(mockIntygsstatistik.getPort()), ERASE_CERTIFICATE_ENDPOINT,
-        ERASE_CARE_PROVIDER_ENDPOINT, BATCH_SIZE);
+    eraseDataInIntygsstatistik =
+        new EraseDataInIntygsstatistik(
+            terminationEntityRepository,
+            certificateEntityRepository,
+            webClient,
+            SCHEME,
+            BASE_URL,
+            Integer.toString(mockIntygsstatistik.getPort()),
+            ERASE_CERTIFICATE_ENDPOINT,
+            ERASE_CARE_PROVIDER_ENDPOINT,
+            BATCH_SIZE);
 
     termination = defaultTermination();
     terminationEntity = toEntity(termination);
@@ -91,8 +115,8 @@ class EraseDataInIntygsstatistikTest {
   class EraseCertificatesSuccessful {
 
     private static final String FIRST_BATCH_OF_IDS = "[\"ID1\",\"ID2\",\"ID3\",\"ID4\",\"ID5\"]";
-    private static final MockResponse FIRST_BATCH_RESPONSE = new MockResponse()
-        .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+    private static final MockResponse FIRST_BATCH_RESPONSE =
+        new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
     private static final String SECOND_BATCH_OF_IDS = "[\"ID6\",\"ID7\"]";
     private static final String CARE_PROVIDER_ID = "[\"" + DEFAULT_HSA_ID + "\"]";
 
@@ -100,43 +124,48 @@ class EraseDataInIntygsstatistikTest {
 
     @BeforeEach
     void setUp() {
-      certificateEntities = Arrays.asList(
-          defaultCertificateEntity("ID1"),
-          defaultCertificateEntity("ID2"),
-          defaultCertificateEntity("ID3"),
-          defaultCertificateEntity("ID4"),
-          defaultCertificateEntity("ID5"),
-          defaultCertificateEntity("ID6"),
-          defaultCertificateEntity("ID7")
-      );
+      certificateEntities =
+          Arrays.asList(
+              defaultCertificateEntity("ID1"),
+              defaultCertificateEntity("ID2"),
+              defaultCertificateEntity("ID3"),
+              defaultCertificateEntity("ID4"),
+              defaultCertificateEntity("ID5"),
+              defaultCertificateEntity("ID6"),
+              defaultCertificateEntity("ID7"));
 
-      final var mDispatcher = new Dispatcher() {
-        @Override
-        public MockResponse dispatch(RecordedRequest request) {
-          final var body = request.getBody().readUtf8();
-          if (body.equalsIgnoreCase(FIRST_BATCH_OF_IDS)) {
-            return new MockResponse().setBody(FIRST_BATCH_OF_IDS)
-                .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-          }
-          if (body.equalsIgnoreCase(SECOND_BATCH_OF_IDS)) {
-            return new MockResponse().setBody(SECOND_BATCH_OF_IDS)
-                .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-          }
-          if (body.equalsIgnoreCase(CARE_PROVIDER_ID)) {
-            return new MockResponse().setBody(
-                    CARE_PROVIDER_ID)
-                .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-          }
-          // Any other calls are unexpected and should return an error!
-          return new MockResponse().setStatus("500");
-        }
-      };
+      final var mDispatcher =
+          new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) {
+              final var body = request.getBody().readUtf8();
+              if (body.equalsIgnoreCase(FIRST_BATCH_OF_IDS)) {
+                return new MockResponse()
+                    .setBody(FIRST_BATCH_OF_IDS)
+                    .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+              }
+              if (body.equalsIgnoreCase(SECOND_BATCH_OF_IDS)) {
+                return new MockResponse()
+                    .setBody(SECOND_BATCH_OF_IDS)
+                    .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+              }
+              if (body.equalsIgnoreCase(CARE_PROVIDER_ID)) {
+                return new MockResponse()
+                    .setBody(CARE_PROVIDER_ID)
+                    .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+              }
+              // Any other calls are unexpected and should return an error!
+              return new MockResponse().setStatus("500");
+            }
+          };
       mockIntygsstatistik.setDispatcher(mDispatcher);
 
       doReturn(Optional.of(terminationEntity))
-          .when(terminationEntityRepository).findByTerminationId(termination.terminationId().id());
+          .when(terminationEntityRepository)
+          .findByTerminationId(termination.terminationId().id());
       doReturn(certificateEntities)
-          .when(certificateEntityRepository).findAllByTermination(terminationEntity);
+          .when(certificateEntityRepository)
+          .findAllByTermination(terminationEntity);
     }
 
     @Test
@@ -147,8 +176,8 @@ class EraseDataInIntygsstatistikTest {
 
       verify(certificateEntityRepository, times(2)).deleteAll(iterableArgumentCaptor.capture());
 
-      assertDeletedCertificates(certificateEntities,
-          getDeletedCertificateEntities(iterableArgumentCaptor));
+      assertDeletedCertificates(
+          certificateEntities, getDeletedCertificateEntities(iterableArgumentCaptor));
     }
 
     @Test
@@ -157,9 +186,13 @@ class EraseDataInIntygsstatistikTest {
 
       eraseDataInIntygsstatistik.erase(termination);
 
-      assertEquals(expectedRequestCount, mockIntygsstatistik.getRequestCount(), () ->
-          String.format("Expected '%s' requests but received '%s'", expectedRequestCount,
-              mockIntygsstatistik.getRequestCount()));
+      assertEquals(
+          expectedRequestCount,
+          mockIntygsstatistik.getRequestCount(),
+          () ->
+              String.format(
+                  "Expected '%s' requests but received '%s'",
+                  expectedRequestCount, mockIntygsstatistik.getRequestCount()));
     }
   }
 
@@ -174,45 +207,49 @@ class EraseDataInIntygsstatistikTest {
 
     @BeforeEach
     void setUp() {
-      certificateEntities = Arrays.asList(
-          defaultCertificateEntity("ID1"),
-          defaultCertificateEntity("ID2"),
-          defaultCertificateEntity("ID3"),
-          defaultCertificateEntity("ID4"),
-          defaultCertificateEntity("ID5"),
-          defaultCertificateEntity("ID6"),
-          defaultCertificateEntity("ID7")
-      );
+      certificateEntities =
+          Arrays.asList(
+              defaultCertificateEntity("ID1"),
+              defaultCertificateEntity("ID2"),
+              defaultCertificateEntity("ID3"),
+              defaultCertificateEntity("ID4"),
+              defaultCertificateEntity("ID5"),
+              defaultCertificateEntity("ID6"),
+              defaultCertificateEntity("ID7"));
 
-      final var mDispatcher = new Dispatcher() {
-        @Override
-        public MockResponse dispatch(RecordedRequest request) {
-          final var body = request.getBody().readUtf8();
-          if (body.equalsIgnoreCase(FIRST_BATCH_OF_IDS)) {
-            return new MockResponse().setBody(FIRST_BATCH_OF_IDS_RESPONSE)
-                .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-          }
-          if (body.equalsIgnoreCase(SECOND_BATCH_OF_IDS)) {
-            return new MockResponse().setBody(SECOND_BATCH_OF_IDS)
-                .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-          }
-          // Any other calls are unexpected and should return an error!
-          return new MockResponse().setStatus("500");
-        }
-      };
+      final var mDispatcher =
+          new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) {
+              final var body = request.getBody().readUtf8();
+              if (body.equalsIgnoreCase(FIRST_BATCH_OF_IDS)) {
+                return new MockResponse()
+                    .setBody(FIRST_BATCH_OF_IDS_RESPONSE)
+                    .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+              }
+              if (body.equalsIgnoreCase(SECOND_BATCH_OF_IDS)) {
+                return new MockResponse()
+                    .setBody(SECOND_BATCH_OF_IDS)
+                    .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+              }
+              // Any other calls are unexpected and should return an error!
+              return new MockResponse().setStatus("500");
+            }
+          };
       mockIntygsstatistik.setDispatcher(mDispatcher);
 
       doReturn(Optional.of(terminationEntity))
-          .when(terminationEntityRepository).findByTerminationId(termination.terminationId().id());
+          .when(terminationEntityRepository)
+          .findByTerminationId(termination.terminationId().id());
       doReturn(certificateEntities)
-          .when(certificateEntityRepository).findAllByTermination(terminationEntity);
+          .when(certificateEntityRepository)
+          .findAllByTermination(terminationEntity);
     }
 
     @Test
     void shallThrowEraseExceptionWhenNotAllCertificatesAreSuccessfullyErased() {
-      final var eraseException = assertThrows(EraseException.class,
-          () -> eraseDataInIntygsstatistik.erase(termination)
-      );
+      final var eraseException =
+          assertThrows(EraseException.class, () -> eraseDataInIntygsstatistik.erase(termination));
 
       assertTrue(
           eraseException.getMessage().contains("Only successfully deleted '5/7' certificates!"),
@@ -221,36 +258,36 @@ class EraseDataInIntygsstatistikTest {
 
     @Test
     void shallOnlyDeleteCertificatesThatWasSuccessfullyErased() {
-      final var successfullyRemovedCertificates = Arrays.asList(
-          defaultCertificateEntity("ID1"),
-          defaultCertificateEntity("ID3"),
-          defaultCertificateEntity("ID5"),
-          defaultCertificateEntity("ID6"),
-          defaultCertificateEntity("ID7")
-      );
+      final var successfullyRemovedCertificates =
+          Arrays.asList(
+              defaultCertificateEntity("ID1"),
+              defaultCertificateEntity("ID3"),
+              defaultCertificateEntity("ID5"),
+              defaultCertificateEntity("ID6"),
+              defaultCertificateEntity("ID7"));
 
       final var iterableArgumentCaptor = ArgumentCaptor.forClass(Iterable.class);
 
-      assertThrows(EraseException.class,
-          () -> eraseDataInIntygsstatistik.erase(termination)
-      );
+      assertThrows(EraseException.class, () -> eraseDataInIntygsstatistik.erase(termination));
 
       verify(certificateEntityRepository, times(2)).deleteAll(iterableArgumentCaptor.capture());
 
-      assertDeletedCertificates(successfullyRemovedCertificates,
-          getDeletedCertificateEntities(iterableArgumentCaptor));
+      assertDeletedCertificates(
+          successfullyRemovedCertificates, getDeletedCertificateEntities(iterableArgumentCaptor));
     }
 
     @Test
     void shallNotDeleteCareProviderUntilAllCertificatesHasBeenSuccessfullyErased() {
       final var expectedRequestCount = 2;
-      assertThrows(EraseException.class,
-          () -> eraseDataInIntygsstatistik.erase(termination)
-      );
+      assertThrows(EraseException.class, () -> eraseDataInIntygsstatistik.erase(termination));
 
-      assertEquals(expectedRequestCount, mockIntygsstatistik.getRequestCount(), () ->
-          String.format("Expected '%s' requests but received '%s'", expectedRequestCount,
-              mockIntygsstatistik.getRequestCount()));
+      assertEquals(
+          expectedRequestCount,
+          mockIntygsstatistik.getRequestCount(),
+          () ->
+              String.format(
+                  "Expected '%s' requests but received '%s'",
+                  expectedRequestCount, mockIntygsstatistik.getRequestCount()));
     }
   }
 
@@ -261,39 +298,39 @@ class EraseDataInIntygsstatistikTest {
 
     @BeforeEach
     void setUp() {
-      certificateEntities = Arrays.asList(
-          defaultCertificateEntity("ID1"),
-          defaultCertificateEntity("ID2"),
-          defaultCertificateEntity("ID3"),
-          defaultCertificateEntity("ID4"),
-          defaultCertificateEntity("ID5"),
-          defaultCertificateEntity("ID6"),
-          defaultCertificateEntity("ID7")
-      );
+      certificateEntities =
+          Arrays.asList(
+              defaultCertificateEntity("ID1"),
+              defaultCertificateEntity("ID2"),
+              defaultCertificateEntity("ID3"),
+              defaultCertificateEntity("ID4"),
+              defaultCertificateEntity("ID5"),
+              defaultCertificateEntity("ID6"),
+              defaultCertificateEntity("ID7"));
 
       doReturn(Optional.of(terminationEntity))
-          .when(terminationEntityRepository).findByTerminationId(termination.terminationId().id());
+          .when(terminationEntityRepository)
+          .findByTerminationId(termination.terminationId().id());
       doReturn(certificateEntities)
-          .when(certificateEntityRepository).findAllByTermination(terminationEntity);
+          .when(certificateEntityRepository)
+          .findAllByTermination(terminationEntity);
 
       mockIntygsstatistik.enqueue(new MockResponse().setResponseCode(500));
     }
 
     @Test
     void shallThrowEraseExceptionWhenErasingCertificateFails() {
-      final var eraseException = assertThrows(EraseException.class,
-          () -> eraseDataInIntygsstatistik.erase(termination)
-      );
+      final var eraseException =
+          assertThrows(EraseException.class, () -> eraseDataInIntygsstatistik.erase(termination));
 
-      assertTrue(eraseException.getMessage().contains("Erase certificates failed with message"),
+      assertTrue(
+          eraseException.getMessage().contains("Erase certificates failed with message"),
           () -> eraseException.getMessage());
     }
 
     @Test
     void shallNotDeleteCertificatesWhenErasingCertificateFails() {
-      assertThrows(EraseException.class,
-          () -> eraseDataInIntygsstatistik.erase(termination)
-      );
+      assertThrows(EraseException.class, () -> eraseDataInIntygsstatistik.erase(termination));
 
       verify(certificateEntityRepository, times(0)).deleteAll(any());
     }
@@ -301,13 +338,15 @@ class EraseDataInIntygsstatistikTest {
     @Test
     void shallNotDeleteCareProviderUntilAllCertificatesHasBeenSuccessfullyErased() {
       final var expectedRequestCount = 1;
-      assertThrows(EraseException.class,
-          () -> eraseDataInIntygsstatistik.erase(termination)
-      );
+      assertThrows(EraseException.class, () -> eraseDataInIntygsstatistik.erase(termination));
 
-      assertEquals(expectedRequestCount, mockIntygsstatistik.getRequestCount(), () ->
-          String.format("Expected '%s' requests but received '%s'", expectedRequestCount,
-              mockIntygsstatistik.getRequestCount()));
+      assertEquals(
+          expectedRequestCount,
+          mockIntygsstatistik.getRequestCount(),
+          () ->
+              String.format(
+                  "Expected '%s' requests but received '%s'",
+                  expectedRequestCount, mockIntygsstatistik.getRequestCount()));
     }
   }
 
@@ -321,31 +360,35 @@ class EraseDataInIntygsstatistikTest {
       certificateEntities = Collections.emptyList();
 
       doReturn(Optional.of(terminationEntity))
-          .when(terminationEntityRepository).findByTerminationId(termination.terminationId().id());
+          .when(terminationEntityRepository)
+          .findByTerminationId(termination.terminationId().id());
       doReturn(certificateEntities)
-          .when(certificateEntityRepository).findAllByTermination(terminationEntity);
+          .when(certificateEntityRepository)
+          .findAllByTermination(terminationEntity);
     }
 
     @Test
     void shallThrowEraseExceptionWhenErasingCareproviderFails() {
       mockIntygsstatistik.enqueue(new MockResponse().setResponseCode(500));
-      final var eraseException = assertThrows(EraseException.class,
-          () -> eraseDataInIntygsstatistik.erase(termination)
-      );
-      assertTrue(eraseException.getMessage().contains("Erase care provider failed with message"),
+      final var eraseException =
+          assertThrows(EraseException.class, () -> eraseDataInIntygsstatistik.erase(termination));
+      assertTrue(
+          eraseException.getMessage().contains("Erase care provider failed with message"),
           () -> eraseException.getMessage());
     }
 
     @Test
     void shallThrowEraseExceptionWhenErasingCareproviderIsMissingInResponse() {
-      mockIntygsstatistik.enqueue(new MockResponse().setBody("[]")
-          .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
+      mockIntygsstatistik.enqueue(
+          new MockResponse()
+              .setBody("[]")
+              .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
 
-      final var eraseException = assertThrows(EraseException.class,
-          () -> eraseDataInIntygsstatistik.erase(termination)
-      );
+      final var eraseException =
+          assertThrows(EraseException.class, () -> eraseDataInIntygsstatistik.erase(termination));
 
-      assertTrue(eraseException.getMessage().contains("Erase care provider failed with message"),
+      assertTrue(
+          eraseException.getMessage().contains("Erase care provider failed with message"),
           () -> eraseException.getMessage());
     }
   }
@@ -358,23 +401,27 @@ class EraseDataInIntygsstatistikTest {
   private List<CertificateEntity> getDeletedCertificateEntities(
       ArgumentCaptor<Iterable> iterableArgumentCaptor) {
     final var deletedCertificates = new ArrayList<CertificateEntity>();
-    iterableArgumentCaptor.getAllValues()
-        .forEach(
-            iterable -> iterable.forEach(o -> deletedCertificates.add((CertificateEntity) o))
-        );
+    iterableArgumentCaptor
+        .getAllValues()
+        .forEach(iterable -> iterable.forEach(o -> deletedCertificates.add((CertificateEntity) o)));
     return deletedCertificates;
   }
 
-  private void assertDeletedCertificates(List<CertificateEntity> expected,
-      List<CertificateEntity> actual) {
+  private void assertDeletedCertificates(
+      List<CertificateEntity> expected, List<CertificateEntity> actual) {
     assertEquals(expected.size(), actual.size());
-    expected.forEach(certificateEntity ->
-        assertTrue(actual.stream()
-                .anyMatch(actualCertificateEntity -> actualCertificateEntity.getCertificateId()
-                    .equalsIgnoreCase(certificateEntity.getCertificateId())
-                ),
-            () -> String.format("Certificate with id '%s' was not deleted when expected!",
-                certificateEntity.getCertificateId()))
-    );
+    expected.forEach(
+        certificateEntity ->
+            assertTrue(
+                actual.stream()
+                    .anyMatch(
+                        actualCertificateEntity ->
+                            actualCertificateEntity
+                                .getCertificateId()
+                                .equalsIgnoreCase(certificateEntity.getCertificateId())),
+                () ->
+                    String.format(
+                        "Certificate with id '%s' was not deleted when expected!",
+                        certificateEntity.getCertificateId())));
   }
 }

@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.testutil;
 
 import java.time.LocalDateTime;
@@ -27,8 +45,7 @@ public class TerminationTestDataBuilder {
   public static final TerminationStatus DEFAULT_STATUS = TerminationStatus.CREATED;
 
   public static Termination defaultTermination() {
-    return defaultTerminationBuilder()
-        .create();
+    return defaultTerminationBuilder().create();
   }
 
   public static TerminationBuilder defaultTerminationBuilder() {
@@ -57,8 +74,7 @@ public class TerminationTestDataBuilder {
         DEFAULT_ORGANIZATION_NUMBER,
         DEFAULT_PERSON_ID,
         DEFAULT_PHONE_NUMBER,
-        DEFAULT_EMAIL_ADDRESS
-    );
+        DEFAULT_EMAIL_ADDRESS);
   }
 
   public static TerminationEntity defaultTerminationEntity() {
@@ -76,8 +92,7 @@ public class TerminationTestDataBuilder {
         DEFAULT_EMAIL_ADDRESS,
         DEFAULT_STATUS.toString(),
         new ExportEmbeddable(0, 0, null, null, null, null, null),
-        Collections.emptyList()
-    );
+        Collections.emptyList());
   }
 
   public static TerminationEntity defaultTerminationEntity(UUID terminationId) {
@@ -95,8 +110,7 @@ public class TerminationTestDataBuilder {
         DEFAULT_EMAIL_ADDRESS,
         DEFAULT_STATUS.toString(),
         new ExportEmbeddable(0, 0, null, null, null, null, null),
-        Collections.emptyList()
-    );
+        Collections.emptyList());
   }
 
   public static Termination terminationWithPhoneNumber(String phoneNumber) {
@@ -106,9 +120,7 @@ public class TerminationTestDataBuilder {
   }
 
   public static Termination terminationWithNotificationTime(LocalDateTime notificationTime) {
-    return defaultTerminationBuilder()
-        .notificationTime(notificationTime)
-        .create();
+    return defaultTerminationBuilder().notificationTime(notificationTime).create();
   }
 
   public static Termination terminationWithEmailAddress(String emailAddress) {

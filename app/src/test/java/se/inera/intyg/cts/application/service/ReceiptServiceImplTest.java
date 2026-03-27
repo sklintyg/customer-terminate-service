@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.application.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,17 +45,14 @@ import se.inera.intyg.cts.domain.repository.TerminationRepository;
 class ReceiptServiceImplTest {
 
   private static final UUID TERMINATION_UUID = UUID.randomUUID();
-  @Spy
-  Termination termination = defaultTermination();
-  @Mock
-  private TerminationRepository terminationRepository;
-  @InjectMocks
-  private ReceiptServiceImpl receiptServiceImpl;
+  @Spy Termination termination = defaultTermination();
+  @Mock private TerminationRepository terminationRepository;
+  @InjectMocks private ReceiptServiceImpl receiptServiceImpl;
 
   @Test
   void testHandleReceipt() {
-    when(terminationRepository.findByTerminationId(any(TerminationId.class))).thenReturn(
-        Optional.of(termination));
+    when(terminationRepository.findByTerminationId(any(TerminationId.class)))
+        .thenReturn(Optional.of(termination));
 
     receiptServiceImpl.handleReceipt(TERMINATION_UUID);
 
@@ -48,11 +63,13 @@ class ReceiptServiceImplTest {
 
   @Test()
   void testHandleTerminationNotFound() {
-    when(terminationRepository.findByTerminationId(any(TerminationId.class))).thenReturn(
-        Optional.empty());
+    when(terminationRepository.findByTerminationId(any(TerminationId.class)))
+        .thenReturn(Optional.empty());
 
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
-        receiptServiceImpl.handleReceipt(TERMINATION_UUID));
+    ResponseStatusException exception =
+        assertThrows(
+            ResponseStatusException.class,
+            () -> receiptServiceImpl.handleReceipt(TERMINATION_UUID));
 
     assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
   }

@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.integration.sjut;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -45,8 +63,15 @@ class UploadPackageToSjutTest {
   void setUp() throws IOException {
     WebClient webClient = WebClient.create();
 
-    uploadPackageToSjut = new UploadPackageToSjut(webClient, SCHEME, BASE_URL,
-        Integer.toString(mockSjut.getPort()), UPLOAD_ENDPOINT, SOURCE_SYSTEM, RECEIPT_BASE_URL);
+    uploadPackageToSjut =
+        new UploadPackageToSjut(
+            webClient,
+            SCHEME,
+            BASE_URL,
+            Integer.toString(mockSjut.getPort()),
+            UPLOAD_ENDPOINT,
+            SOURCE_SYSTEM,
+            RECEIPT_BASE_URL);
 
     termination = defaultTermination();
     packageFile = File.createTempFile("dummy", "zip");
@@ -61,9 +86,7 @@ class UploadPackageToSjutTest {
 
   @Test
   void shallUploadFileToSjutWithFile() throws InterruptedException {
-    mockSjut.enqueue(new MockResponse()
-        .setBody("Package has been uploaded!")
-    );
+    mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
     uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
 
@@ -73,9 +96,7 @@ class UploadPackageToSjutTest {
 
   @Test
   void shallUploadFileToSjutWithHsaId() throws InterruptedException {
-    mockSjut.enqueue(new MockResponse()
-        .setBody("Package has been uploaded!")
-    );
+    mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
     uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
 
@@ -85,23 +106,19 @@ class UploadPackageToSjutTest {
 
   @Test
   void shallUploadFileToSjutWithOrganizationNumber() throws InterruptedException {
-    mockSjut.enqueue(new MockResponse()
-        .setBody("Package has been uploaded!")
-    );
+    mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
     uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
 
     final var requestBody = mockSjut.takeRequest().getBody().readUtf8();
-    assertTrue(requestBody.contains(termination.careProvider().organizationNumber().number()),
-        requestBody
-    );
+    assertTrue(
+        requestBody.contains(termination.careProvider().organizationNumber().number()),
+        requestBody);
   }
 
   @Test
   void shallUploadFileToSjutWithSourceSystem() throws InterruptedException {
-    mockSjut.enqueue(new MockResponse()
-        .setBody("Package has been uploaded!")
-    );
+    mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
     uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
 
@@ -111,45 +128,36 @@ class UploadPackageToSjutTest {
 
   @Test
   void shallUploadFileToSjutWithDelegatePnr() throws InterruptedException {
-    mockSjut.enqueue(new MockResponse()
-        .setBody("Package has been uploaded!")
-    );
+    mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
     uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
 
     final var requestBody = mockSjut.takeRequest().getBody().readUtf8();
     assertTrue(
         requestBody.contains(termination.export().organizationRepresentative().personId().id()),
-        requestBody
-    );
+        requestBody);
   }
 
   @Test
   void shallUploadFileToSjutWithReceiptUrl() throws InterruptedException {
     mockSjut.takeRequest();
 
-    mockSjut.enqueue(new MockResponse()
-        .setBody("Package has been uploaded!")
-    );
+    mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
     uploadPackageToSjut.uploadPackage(termination, packageFile);
 
     final var requestBody = mockSjut.takeRequest().getBody().readUtf8();
     assertTrue(
         requestBody.contains(RECEIPT_BASE_URL + termination.terminationId().id().toString()),
-        requestBody
-    );
+        requestBody);
   }
 
   @Test
   void shallThrowExceptionIfUploadFailed() {
-    mockSjut.enqueue(new MockResponse()
-        .setBody("Upload failed!")
-        .setResponseCode(500)
-    );
+    mockSjut.enqueue(new MockResponse().setBody("Upload failed!").setResponseCode(500));
 
-    assertThrows(RuntimeException.class,
-        () -> uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile)
-    );
+    assertThrows(
+        RuntimeException.class,
+        () -> uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile));
   }
 }

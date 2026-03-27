@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.persistence;
 
 import static se.inera.intyg.cts.infrastructure.persistence.entity.CertificateTextEntityMapper.toEntity;
@@ -30,14 +48,12 @@ public class JpaCertificateTextRepository implements CertificateTextRepository {
 
   @Override
   public void store(Termination termination, List<CertificateText> certificateTexts) {
-    final var terminationEntity = getByTerminationId(termination)
-        .orElseThrow();
+    final var terminationEntity = getByTerminationId(termination).orElseThrow();
 
     certificateTextEntityRepository.saveAll(
         certificateTexts.stream()
             .map(certificateText -> toEntity(certificateText, terminationEntity))
-            .collect(Collectors.toList())
-    );
+            .collect(Collectors.toList()));
   }
 
   @Override
@@ -55,14 +71,17 @@ public class JpaCertificateTextRepository implements CertificateTextRepository {
 
   @Override
   public void remove(Termination termination) {
-    final var terminationEntity = getByTerminationId(termination)
-        .orElseThrow(() -> new IllegalArgumentException(
-            String.format("Termination with id '%s' doesn't exists!",
-                termination.terminationId().id())
-        ));
+    final var terminationEntity =
+        getByTerminationId(termination)
+            .orElseThrow(
+                () ->
+                    new IllegalArgumentException(
+                        String.format(
+                            "Termination with id '%s' doesn't exists!",
+                            termination.terminationId().id())));
 
-    final var certificateTextEntities = certificateTextEntityRepository.findAllByTermination(
-        terminationEntity);
+    final var certificateTextEntities =
+        certificateTextEntityRepository.findAllByTermination(terminationEntity);
 
     if (certificateTextEntities.size() > 0) {
       certificateTextEntityRepository.deleteAll(certificateTextEntities);

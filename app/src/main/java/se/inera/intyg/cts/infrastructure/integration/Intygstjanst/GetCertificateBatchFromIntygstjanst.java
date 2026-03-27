@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.integration.Intygstjanst;
 
 import static se.inera.intyg.cts.logging.MdcLogConstants.EVENT_TYPE_ACCESSED;
@@ -41,32 +59,35 @@ public class GetCertificateBatchFromIntygstjanst implements GetCertificateBatch 
   @Override
   @PerformanceLogging(eventAction = "get-certificate-batch", eventType = EVENT_TYPE_ACCESSED)
   public CertificateBatch get(String careProvider, int limit, int collected) {
-    final var certificateExportPageDTOMono = webClient.get()
-        .uri(uriBuilder -> uriBuilder
-            .scheme(scheme)
-            .host(baseUrl)
-            .port(port)
-            .path(certificatesEndpoint + "/{careProvider}")
-            .queryParam("batchSize", limit)
-            .queryParam("collected", collected)
-            .build(careProvider))
-        .retrieve()
-        .bodyToMono(CertificateExportPageDTO.class)
-        .share()
-        .block();
+    final var certificateExportPageDTOMono =
+        webClient
+            .get()
+            .uri(
+                uriBuilder ->
+                    uriBuilder
+                        .scheme(scheme)
+                        .host(baseUrl)
+                        .port(port)
+                        .path(certificatesEndpoint + "/{careProvider}")
+                        .queryParam("batchSize", limit)
+                        .queryParam("collected", collected)
+                        .build(careProvider))
+            .retrieve()
+            .bodyToMono(CertificateExportPageDTO.class)
+            .share()
+            .block();
 
     return new CertificateBatch(
         new CertificateSummary(
             (int) certificateExportPageDTOMono.total(),
-            (int) certificateExportPageDTOMono.totalRevoked()
-        ),
+            (int) certificateExportPageDTOMono.totalRevoked()),
         certificateExportPageDTOMono.certificateXmls().stream()
-            .map(certificateXmlDTO -> new Certificate(
-                new CertificateId(certificateXmlDTO.id()),
-                certificateXmlDTO.revoked(),
-                new CertificateXML(certificateXmlDTO.xml())
-            ))
-            .collect(Collectors.toList())
-    );
+            .map(
+                certificateXmlDTO ->
+                    new Certificate(
+                        new CertificateId(certificateXmlDTO.id()),
+                        certificateXmlDTO.revoked(),
+                        new CertificateXML(certificateXmlDTO.xml())))
+            .collect(Collectors.toList()));
   }
 }
