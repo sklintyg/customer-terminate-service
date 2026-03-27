@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.integrationtest;
 
 import static io.restassured.RestAssured.given;
@@ -35,8 +53,7 @@ public class TestData {
     return new TestData();
   }
 
-  private TestData() {
-  }
+  private TestData() {}
 
   public TestData defaultTermination() {
     defaultTerminations(1);
@@ -56,9 +73,7 @@ public class TestData {
               ORG_NO,
               PERSON_ID,
               PHONE_NUMBER,
-              EMAIL_ADDRESS
-          )
-      );
+              EMAIL_ADDRESS));
     }
     return this;
   }
@@ -251,11 +266,8 @@ public class TestData {
   private List<CertificateXmlDTO> certificates() {
     final List<CertificateXmlDTO> certificates = new ArrayList<>(certificatesCount);
     for (int i = 0; i < certificatesCount; i++) {
-      certificates.add(new CertificateXmlDTO(
-          UUID.randomUUID().toString(),
-          false,
-          "<xml>Certificate</xml>"
-      ));
+      certificates.add(
+          new CertificateXmlDTO(UUID.randomUUID().toString(), false, "<xml>Certificate</xml>"));
     }
     return certificates;
   }
@@ -265,11 +277,7 @@ public class TestData {
     for (int i = 0; i < certificateTextsCount; i++) {
       certificateTexts.add(
           new CertificateTextXmlDTO(
-              "certificateType" + i,
-              "certificateTypeVersion" + i,
-              "<xml>Text</xml>"
-          )
-      );
+              "certificateType" + i, "certificateTypeVersion" + i, "<xml>Text</xml>"));
     }
     return certificateTexts;
   }

@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.integration.webcert;
 
 import static se.inera.intyg.cts.logging.MdcLogConstants.EVENT_TYPE_DELETION;
@@ -19,8 +37,8 @@ import se.inera.intyg.cts.logging.PerformanceLogging;
 @Service
 public class EraseDataInWebcert implements EraseDataInService {
 
-  private final static Logger LOG = LoggerFactory.getLogger(EraseDataInWebcert.class);
-  private final static ServiceId SERVICE_ID = new ServiceId("webcert");
+  private static final Logger LOG = LoggerFactory.getLogger(EraseDataInWebcert.class);
+  private static final ServiceId SERVICE_ID = new ServiceId("webcert");
 
   private final WebClient webClient;
   private final String scheme;
@@ -45,13 +63,16 @@ public class EraseDataInWebcert implements EraseDataInService {
   @PerformanceLogging(eventAction = "erase-in-webcert", eventType = EVENT_TYPE_DELETION)
   public void erase(Termination termination) throws EraseException {
     try {
-      webClient.delete().uri(uriBuilder -> uriBuilder
-              .scheme(scheme)
-              .host(baseUrl)
-              .port(port)
-              .path(eraseEndpoint + "/{careProvider}")
-              .build(termination.careProvider().hsaId().id())
-          )
+      webClient
+          .delete()
+          .uri(
+              uriBuilder ->
+                  uriBuilder
+                      .scheme(scheme)
+                      .host(baseUrl)
+                      .port(port)
+                      .path(eraseEndpoint + "/{careProvider}")
+                      .build(termination.careProvider().hsaId().id()))
           .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
           .retrieve()
           .toEntity(String.class)
@@ -59,8 +80,7 @@ public class EraseDataInWebcert implements EraseDataInService {
     } catch (Exception ex) {
       LOG.error("Error calling webcert to delete care provider.", ex);
       throw new EraseException(
-          String.format("Erase care provider failed with message '%s'", ex.getMessage())
-      );
+          String.format("Erase care provider failed with message '%s'", ex.getMessage()));
     }
   }
 

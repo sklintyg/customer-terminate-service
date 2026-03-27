@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.domain.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,8 +37,7 @@ import se.inera.intyg.cts.domain.repository.InMemoryTerminationRepository;
 @ExtendWith(MockitoExtension.class)
 class SendPackageNotificationTest {
 
-  @Mock
-  private SendNotification sendNotification;
+  @Mock private SendNotification sendNotification;
 
   private SendPackageNotification sendPackageNotification;
   private InMemoryTerminationRepository terminationRepository;
@@ -28,8 +45,8 @@ class SendPackageNotificationTest {
   @BeforeEach
   void setUp() {
     terminationRepository = new InMemoryTerminationRepository();
-    sendPackageNotification = new SendPackageNotificationImpl(sendNotification,
-        terminationRepository);
+    sendPackageNotification =
+        new SendPackageNotificationImpl(sendNotification, terminationRepository);
   }
 
   @Test
@@ -39,8 +56,8 @@ class SendPackageNotificationTest {
 
     sendPackageNotification.sendNotification(termination);
 
-    assertEquals(TerminationStatus.NOTIFICATION_SENT,
-        termination(termination.terminationId()).status());
+    assertEquals(
+        TerminationStatus.NOTIFICATION_SENT, termination(termination.terminationId()).status());
   }
 
   @Test
@@ -52,10 +69,12 @@ class SendPackageNotificationTest {
     sendPackageNotification.sendNotification(termination);
 
     final var export = termination(termination.terminationId()).export();
-    assertFalse(export.notificationTime().isBefore(beforeDateTime), () ->
-        String.format("Expect notificationTime '%s' to be updated and not before '%s'",
-            export.notificationTime(), beforeDateTime)
-    );
+    assertFalse(
+        export.notificationTime().isBefore(beforeDateTime),
+        () ->
+            String.format(
+                "Expect notificationTime '%s' to be updated and not before '%s'",
+                export.notificationTime(), beforeDateTime));
   }
 
   @Test
@@ -75,8 +94,8 @@ class SendPackageNotificationTest {
 
     sendPackageNotification.sendReminder(termination);
 
-    assertEquals(TerminationStatus.REMINDER_SENT,
-        termination(termination.terminationId()).status());
+    assertEquals(
+        TerminationStatus.REMINDER_SENT, termination(termination.terminationId()).status());
   }
 
   @Test
@@ -88,10 +107,12 @@ class SendPackageNotificationTest {
     sendPackageNotification.sendReminder(termination);
 
     final var export = termination(termination.terminationId()).export();
-    assertFalse(export.reminderTime().isBefore(beforeDateTime), () ->
-        String.format("Expect reminderTime '%s' to be updated and not before '%s'",
-            export.reminderTime(), beforeDateTime)
-    );
+    assertFalse(
+        export.reminderTime().isBefore(beforeDateTime),
+        () ->
+            String.format(
+                "Expect reminderTime '%s' to be updated and not before '%s'",
+                export.reminderTime(), beforeDateTime));
   }
 
   @Test
@@ -101,8 +122,8 @@ class SendPackageNotificationTest {
 
     sendPackageNotification.sendNotification(termination);
 
-    assertEquals(TerminationStatus.NOTIFICATION_SENT,
-        termination(termination.terminationId()).status());
+    assertEquals(
+        TerminationStatus.NOTIFICATION_SENT, termination(termination.terminationId()).status());
   }
 
   private Termination createTermination(TerminationStatus status) {
@@ -114,5 +135,4 @@ class SendPackageNotificationTest {
   private Termination termination(TerminationId terminationId) {
     return terminationRepository.findByTerminationId(terminationId).orElseThrow();
   }
-
 }

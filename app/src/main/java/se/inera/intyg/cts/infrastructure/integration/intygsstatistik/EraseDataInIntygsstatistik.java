@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.integration.intygsstatistik;
 
 import static se.inera.intyg.cts.logging.MdcLogConstants.EVENT_TYPE_DELETION;
@@ -34,8 +52,8 @@ import se.inera.intyg.cts.logging.PerformanceLogging;
 @Service
 public class EraseDataInIntygsstatistik implements EraseDataInService {
 
-  private final static Logger LOG = LoggerFactory.getLogger(EraseDataInIntygsstatistik.class);
-  private final static ServiceId SERVICE_ID = new ServiceId("intygsstatistik");
+  private static final Logger LOG = LoggerFactory.getLogger(EraseDataInIntygsstatistik.class);
+  private static final ServiceId SERVICE_ID = new ServiceId("intygsstatistik");
 
   private final TerminationEntityRepository terminationEntityRepository;
   private final CertificateEntityRepository certificateEntityRepository;
@@ -55,8 +73,10 @@ public class EraseDataInIntygsstatistik implements EraseDataInService {
       @Value("${integration.intygsstatistik.scheme}") String scheme,
       @Value("${integration.intygsstatistik.baseurl}") String baseUrl,
       @Value("${integration.intygsstatistik.port}") String port,
-      @Value("${integration.intygsstatistik.erase.certificates.endpoint}") String eraseCertificatesEndpoint,
-      @Value("${integration.intygsstatistik.erase.careprovider.endpoint}") String eraseCareProviderEndpoint,
+      @Value("${integration.intygsstatistik.erase.certificates.endpoint}")
+          String eraseCertificatesEndpoint,
+      @Value("${integration.intygsstatistik.erase.careprovider.endpoint}")
+          String eraseCareProviderEndpoint,
       @Value("${integration.intygsstatistik.erase.certificates.batchSize}") int batchSize) {
     this.terminationEntityRepository = terminationEntityRepository;
     this.certificateEntityRepository = certificateEntityRepository;
@@ -78,12 +98,12 @@ public class EraseDataInIntygsstatistik implements EraseDataInService {
    * In Intygsstatistik we first need to remove all related certificates before we remove the
    * careprovider. The reason is to not cause issues in Intygstatistik by removing careprovider
    * metadata before all certificates have been erased.
-   * <p>
-   * There can be a large number of certificates that needs to be erased, therefor we erase them in
-   * batches (size based on configuration).
-   * <p>
-   * If any errors occurs during erasing, or that we only partially have deleted the certificates,
-   * the implementation will throw an exception.
+   *
+   * <p>There can be a large number of certificates that needs to be erased, therefor we erase them
+   * in batches (size based on configuration).
+   *
+   * <p>If any errors occurs during erasing, or that we only partially have deleted the
+   * certificates, the implementation will throw an exception.
    *
    * @param termination Termination which data should be erased.
    * @throws EraseException
@@ -95,39 +115,37 @@ public class EraseDataInIntygsstatistik implements EraseDataInService {
 
     final var deletedCertificates = new ArrayList<>(certificatesToDelete.size());
     batches(certificatesToDelete, batchSize)
-        .forEach(certificatesBatch ->
-            deletedCertificates.addAll(deleteBatch(certificatesBatch)
-            )
-        );
+        .forEach(certificatesBatch -> deletedCertificates.addAll(deleteBatch(certificatesBatch)));
 
     if (isAllCertificatesDeleted(certificatesToDelete, deletedCertificates)) {
       deleteCareProvider(termination.careProvider().hsaId());
     } else {
       throw new EraseException(
-          String.format("Only successfully deleted '%s/%s' certificates!",
-              deletedCertificates.size(), certificatesToDelete.size())
-      );
+          String.format(
+              "Only successfully deleted '%s/%s' certificates!",
+              deletedCertificates.size(), certificatesToDelete.size()));
     }
   }
 
-  private boolean isAllCertificatesDeleted(List<CertificateEntity> certificatesToDelete,
-      ArrayList<Object> deletedCertificates) {
+  private boolean isAllCertificatesDeleted(
+      List<CertificateEntity> certificatesToDelete, ArrayList<Object> deletedCertificates) {
     return certificatesToDelete.size() == deletedCertificates.size();
   }
 
   private List<CertificateEntity> deleteBatch(List<CertificateEntity> certificateEntities)
       throws EraseException {
-    final var deletedCertificateIds = deleteCertificates(
-        certificateEntities.stream()
-            .map(CertificateEntity::getCertificateId)
-            .collect(Collectors.toList())
-    );
+    final var deletedCertificateIds =
+        deleteCertificates(
+            certificateEntities.stream()
+                .map(CertificateEntity::getCertificateId)
+                .collect(Collectors.toList()));
 
-    final var deletedCertificates = certificateEntities.stream()
-        .filter(certificateEntity ->
-            deletedCertificateIds.contains(certificateEntity.getCertificateId())
-        )
-        .collect(Collectors.toList());
+    final var deletedCertificates =
+        certificateEntities.stream()
+            .filter(
+                certificateEntity ->
+                    deletedCertificateIds.contains(certificateEntity.getCertificateId()))
+            .collect(Collectors.toList());
 
     certificateEntityRepository.deleteAll(deletedCertificates);
 
@@ -138,62 +156,59 @@ public class EraseDataInIntygsstatistik implements EraseDataInService {
     try {
       return webClient
           .method(HttpMethod.DELETE)
-          .uri(uriBuilder -> uriBuilder
-              .scheme(scheme)
-              .host(baseUrl)
-              .port(port)
-              .path(eraseCertificatesEndpoint)
-              .build()
-          )
-          .body(Mono.just(certificateIds), new ParameterizedTypeReference<List<String>>() {
-          })
+          .uri(
+              uriBuilder ->
+                  uriBuilder
+                      .scheme(scheme)
+                      .host(baseUrl)
+                      .port(port)
+                      .path(eraseCertificatesEndpoint)
+                      .build())
+          .body(Mono.just(certificateIds), new ParameterizedTypeReference<List<String>>() {})
           .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
           .retrieve()
-          .toEntity(new ParameterizedTypeReference<List<String>>() {
-          })
+          .toEntity(new ParameterizedTypeReference<List<String>>() {})
           .block()
           .getBody();
     } catch (Exception ex) {
       LOG.error("Error calling intygsstatistik to delete certificates.", ex);
       throw new EraseException(
-          String.format("Erase certificates failed with message '%s'", ex.getMessage())
-      );
+          String.format("Erase certificates failed with message '%s'", ex.getMessage()));
     }
   }
 
   private void deleteCareProvider(HSAId hsaId) throws EraseException {
     try {
-      final var deletedCareproviderIds = webClient
-          .method(HttpMethod.DELETE)
-          .uri(uriBuilder -> uriBuilder
-              .scheme(scheme)
-              .host(baseUrl)
-              .port(port)
-              .path(eraseCareProviderEndpoint)
-              .build(hsaId.id())
-          )
-          .body(Mono.just(Collections.singletonList(hsaId.id())),
-              new ParameterizedTypeReference<List<String>>() {
-              })
-          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-          .retrieve()
-          .toEntity(new ParameterizedTypeReference<List<String>>() {
-          })
-          .block()
-          .getBody();
+      final var deletedCareproviderIds =
+          webClient
+              .method(HttpMethod.DELETE)
+              .uri(
+                  uriBuilder ->
+                      uriBuilder
+                          .scheme(scheme)
+                          .host(baseUrl)
+                          .port(port)
+                          .path(eraseCareProviderEndpoint)
+                          .build(hsaId.id()))
+              .body(
+                  Mono.just(Collections.singletonList(hsaId.id())),
+                  new ParameterizedTypeReference<List<String>>() {})
+              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+              .retrieve()
+              .toEntity(new ParameterizedTypeReference<List<String>>() {})
+              .block()
+              .getBody();
 
       if (!deletedCareproviderIds.contains(hsaId.id())) {
         throw new EraseException(
             String.format(
                 "Erase care provider failed because hsaId '%s' is missing in response '%s'",
-                hsaId.id(), deletedCareproviderIds)
-        );
+                hsaId.id(), deletedCareproviderIds));
       }
     } catch (Exception ex) {
       LOG.error("Error calling intygsstatistik to delete care provider.", ex);
       throw new EraseException(
-          String.format("Erase care provider failed with message '%s'", ex.getMessage())
-      );
+          String.format("Erase care provider failed with message '%s'", ex.getMessage()));
     }
   }
 
@@ -212,8 +227,10 @@ public class EraseDataInIntygsstatistik implements EraseDataInService {
       return Stream.empty();
     }
     final var fullChunks = (noOfCertificates - 1) / size;
-    return IntStream.range(0, fullChunks + 1).mapToObj(
-        n -> certificates.subList(n * size, n == fullChunks ? noOfCertificates : (n + 1) * size)
-    );
+    return IntStream.range(0, fullChunks + 1)
+        .mapToObj(
+            n ->
+                certificates.subList(
+                    n * size, n == fullChunks ? noOfCertificates : (n + 1) * size));
   }
 }

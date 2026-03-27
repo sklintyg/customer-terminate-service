@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.application.service;
 
 import static se.inera.intyg.cts.application.dto.TerminationDTOMapper.toDTO;
@@ -33,7 +51,8 @@ public class TerminationServiceImpl implements TerminationService {
   private final SendPackagePassword sendPackagePassword;
   private final UpdateTermination updateTermination;
 
-  public TerminationServiceImpl(TerminationRepository terminationRepository,
+  public TerminationServiceImpl(
+      TerminationRepository terminationRepository,
       SendPackagePassword sendPackagePassword,
       UpdateTermination updateTermination) {
     this.terminationRepository = terminationRepository;
@@ -45,21 +64,22 @@ public class TerminationServiceImpl implements TerminationService {
   @Transactional
   public TerminationDTO create(CreateTerminationDTO createTerminationDTO) {
 
-    final var termination = TerminationBuilder.getInstance()
-        .creatorHSAId(createTerminationDTO.creatorHSAId())
-        .creatorName(createTerminationDTO.creatorName())
-        .careProviderHSAId(createTerminationDTO.hsaId())
-        .careProviderOrganizationNumber(createTerminationDTO.organizationNumber())
-        .careProviderOrganizationRepresentativePersonId(createTerminationDTO.personId())
-        .careProviderOrganizationRepresentativePhoneNumber(createTerminationDTO.phoneNumber())
-        .careProviderOrganizationRepresentativeEmailAddress(createTerminationDTO.emailAddress())
-        .create();
+    final var termination =
+        TerminationBuilder.getInstance()
+            .creatorHSAId(createTerminationDTO.creatorHSAId())
+            .creatorName(createTerminationDTO.creatorName())
+            .careProviderHSAId(createTerminationDTO.hsaId())
+            .careProviderOrganizationNumber(createTerminationDTO.organizationNumber())
+            .careProviderOrganizationRepresentativePersonId(createTerminationDTO.personId())
+            .careProviderOrganizationRepresentativePhoneNumber(createTerminationDTO.phoneNumber())
+            .careProviderOrganizationRepresentativeEmailAddress(createTerminationDTO.emailAddress())
+            .create();
 
     final var createdTermination = terminationRepository.store(termination);
-    LOG.info("Created termination with id '{}' for care provider '{}'",
+    LOG.info(
+        "Created termination with id '{}' for care provider '{}'",
         createdTermination.terminationId().id(),
-        createdTermination.careProvider().hsaId().id()
-    );
+        createdTermination.careProvider().hsaId().id());
 
     return toDTO(createdTermination);
   }
@@ -67,8 +87,8 @@ public class TerminationServiceImpl implements TerminationService {
   @Override
   @Transactional
   public Optional<TerminationDTO> findById(UUID terminationId) {
-    final var termination = terminationRepository.findByTerminationId(
-        new TerminationId(terminationId));
+    final var termination =
+        terminationRepository.findByTerminationId(new TerminationId(terminationId));
 
     return termination.map(TerminationDTOMapper::toDTO);
   }
@@ -76,13 +96,12 @@ public class TerminationServiceImpl implements TerminationService {
   @Override
   @Transactional
   public List<TerminationDTO> findAll() {
-    return terminationRepository.findAll().stream()
-        .map(TerminationDTOMapper::toDTO)
-        .toList();
+    return terminationRepository.findAll().stream().map(TerminationDTOMapper::toDTO).toList();
   }
 
   /**
    * Try to resend password termination exists
+   *
    * @param terminationId Id of the termination to resend.
    * @return TerminationDTO containing the new status.
    * @throws IllegalArgumentException When termination does not exist
@@ -90,31 +109,35 @@ public class TerminationServiceImpl implements TerminationService {
   @Override
   @Transactional
   public TerminationDTO resendPassword(UUID terminationId) throws IllegalArgumentException {
-    Termination termination = terminationRepository.findByTerminationId(new TerminationId(terminationId)).orElseThrow(
-        () -> new IllegalArgumentException (String.format("Termination for id %s not found", terminationId))
-      );
-      return TerminationDTOMapper.toDTO(sendPackagePassword.resendPassword(termination));
+    Termination termination =
+        terminationRepository
+            .findByTerminationId(new TerminationId(terminationId))
+            .orElseThrow(
+                () ->
+                    new IllegalArgumentException(
+                        String.format("Termination for id %s not found", terminationId)));
+    return TerminationDTOMapper.toDTO(sendPackagePassword.resendPassword(termination));
   }
 
   @Override
   @Transactional
   public TerminationDTO update(UUID terminationId, UpdateTerminationDTO updateTerminationDTO) {
-    final var termination = terminationRepository.findByTerminationId(
-        new TerminationId(terminationId)).orElseThrow(
-        () -> new IllegalArgumentException(
-            String.format("TerminationId '%s' doesn't exist!", terminationId)
-        )
-    );
+    final var termination =
+        terminationRepository
+            .findByTerminationId(new TerminationId(terminationId))
+            .orElseThrow(
+                () ->
+                    new IllegalArgumentException(
+                        String.format("TerminationId '%s' doesn't exist!", terminationId)));
 
-    final var updatedTermination = updateTermination.update(
-        termination,
-        new HSAId(updateTerminationDTO.hsaId()),
-        new PersonId(updateTerminationDTO.personId()),
-        new EmailAddress(updateTerminationDTO.emailAddress()),
-        new PhoneNumber(updateTerminationDTO.phoneNumber())
-    );
+    final var updatedTermination =
+        updateTermination.update(
+            termination,
+            new HSAId(updateTerminationDTO.hsaId()),
+            new PersonId(updateTerminationDTO.personId()),
+            new EmailAddress(updateTerminationDTO.emailAddress()),
+            new PhoneNumber(updateTerminationDTO.phoneNumber()));
 
     return toDTO(updatedTermination);
   }
-
 }

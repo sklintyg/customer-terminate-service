@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.application.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,24 +55,26 @@ import se.inera.intyg.cts.testutil.TerminationTestDataBuilder;
 @ExtendWith(MockitoExtension.class)
 class TerminationControllerTest {
 
-  @Mock
-  private TerminationService terminationService;
+  @Mock private TerminationService terminationService;
 
-  @Mock
-  private EraseService eraseService;
+  @Mock private EraseService eraseService;
 
-  @InjectMocks
-  private TerminationController terminationController;
+  @InjectMocks private TerminationController terminationController;
 
   private final TerminationDTO terminationDTO = TerminationTestDataBuilder.defaultTerminationDTO();
   private final TerminationId terminationId = new TerminationId(DEFAULT_TERMINATION_ID);
 
   @Test
   void create() {
-    CreateTerminationDTO request = new CreateTerminationDTO(DEFAULT_CREATOR_HSA_ID,
-        DEFAULT_CREATOR_NAME,
-        DEFAULT_HSA_ID, DEFAULT_ORGANIZATION_NUMBER, DEFAULT_PERSON_ID, DEFAULT_PHONE_NUMBER,
-        DEFAULT_EMAIL_ADDRESS);
+    CreateTerminationDTO request =
+        new CreateTerminationDTO(
+            DEFAULT_CREATOR_HSA_ID,
+            DEFAULT_CREATOR_NAME,
+            DEFAULT_HSA_ID,
+            DEFAULT_ORGANIZATION_NUMBER,
+            DEFAULT_PERSON_ID,
+            DEFAULT_PHONE_NUMBER,
+            DEFAULT_EMAIL_ADDRESS);
     when(terminationService.create(request)).thenReturn(terminationDTO);
 
     TerminationDTO terminationDTOResponse = terminationController.create(request);
@@ -65,15 +85,20 @@ class TerminationControllerTest {
 
   @Test
   void createBadRequest() {
-    CreateTerminationDTO request = new CreateTerminationDTO(DEFAULT_CREATOR_HSA_ID,
-        DEFAULT_CREATOR_NAME,
-        DEFAULT_HSA_ID, DEFAULT_ORGANIZATION_NUMBER, DEFAULT_PERSON_ID, DEFAULT_PHONE_NUMBER,
-        DEFAULT_EMAIL_ADDRESS);
+    CreateTerminationDTO request =
+        new CreateTerminationDTO(
+            DEFAULT_CREATOR_HSA_ID,
+            DEFAULT_CREATOR_NAME,
+            DEFAULT_HSA_ID,
+            DEFAULT_ORGANIZATION_NUMBER,
+            DEFAULT_PERSON_ID,
+            DEFAULT_PHONE_NUMBER,
+            DEFAULT_EMAIL_ADDRESS);
 
     when(terminationService.create(request)).thenThrow(IllegalArgumentException.class);
 
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
-        terminationController.create(request));
+    ResponseStatusException exception =
+        assertThrows(ResponseStatusException.class, () -> terminationController.create(request));
 
     verify(terminationService, times(1)).create(request);
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
@@ -81,38 +106,30 @@ class TerminationControllerTest {
 
   @Test
   void update() {
-    final var updateTerminationDTO = new UpdateTerminationDTO(
-        "NewHSAId",
-        "NewPersonId",
-        "NewPhoneNumber",
-        "NewEmailAddress"
-    );
+    final var updateTerminationDTO =
+        new UpdateTerminationDTO("NewHSAId", "NewPersonId", "NewPhoneNumber", "NewEmailAddress");
 
     when(terminationService.update(terminationDTO.terminationId(), updateTerminationDTO))
         .thenReturn(terminationDTO);
 
-    final var terminationDTOResponse = terminationController.update(
-        terminationDTO.terminationId(),
-        updateTerminationDTO);
+    final var terminationDTOResponse =
+        terminationController.update(terminationDTO.terminationId(), updateTerminationDTO);
 
     assertEquals(terminationDTOResponse, terminationDTO);
   }
 
   @Test
   void updateBadRequest() {
-    final var updateTerminationDTO = new UpdateTerminationDTO(
-        "NewHSAId",
-        "NewPersonId",
-        "NewPhoneNumber",
-        "NewEmailAddress"
-    );
+    final var updateTerminationDTO =
+        new UpdateTerminationDTO("NewHSAId", "NewPersonId", "NewPhoneNumber", "NewEmailAddress");
     when(terminationService.update(terminationDTO.terminationId(), updateTerminationDTO))
         .thenThrow(IllegalArgumentException.class);
 
     final var id = terminationDTO.terminationId();
-    final var exception = assertThrows(ResponseStatusException.class, () ->
-        terminationController.update(id, updateTerminationDTO)
-    );
+    final var exception =
+        assertThrows(
+            ResponseStatusException.class,
+            () -> terminationController.update(id, updateTerminationDTO));
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
   }
@@ -133,8 +150,8 @@ class TerminationControllerTest {
     UUID uuid = UUID.randomUUID();
     when(terminationService.findById(uuid)).thenReturn(Optional.empty());
 
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
-        terminationController.findById(uuid));
+    ResponseStatusException exception =
+        assertThrows(ResponseStatusException.class, () -> terminationController.findById(uuid));
 
     verify(terminationService, times(1)).findById(uuid);
     assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
@@ -164,8 +181,8 @@ class TerminationControllerTest {
     when(eraseService.initiateErase(terminationId)).thenThrow(new IllegalArgumentException());
 
     final var id = terminationId.id();
-    final var exception = assertThrows(ResponseStatusException.class, () ->
-        terminationController.startErase(id));
+    final var exception =
+        assertThrows(ResponseStatusException.class, () -> terminationController.startErase(id));
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
   }
@@ -185,12 +202,13 @@ class TerminationControllerTest {
 
     @Test
     void resendKeyNotFoundException() {
-      when(terminationService.resendPassword(terminationId.id())).thenThrow(
-          new NoSuchElementException());
+      when(terminationService.resendPassword(terminationId.id()))
+          .thenThrow(new NoSuchElementException());
 
       final var id = terminationId.id();
-      final var exception = assertThrows(ResponseStatusException.class, () ->
-          terminationController.resendPassword(id));
+      final var exception =
+          assertThrows(
+              ResponseStatusException.class, () -> terminationController.resendPassword(id));
 
       verify(terminationService, times(1)).resendPassword(terminationId.id());
       assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
@@ -198,11 +216,12 @@ class TerminationControllerTest {
 
     @Test
     void resendKeyIllegalArgumentException() {
-      when(terminationService.resendPassword(terminationId.id())).thenThrow(
-          new IllegalArgumentException());
+      when(terminationService.resendPassword(terminationId.id()))
+          .thenThrow(new IllegalArgumentException());
       final var id = terminationId.id();
-      final var exception = assertThrows(ResponseStatusException.class, () ->
-          terminationController.resendPassword(id));
+      final var exception =
+          assertThrows(
+              ResponseStatusException.class, () -> terminationController.resendPassword(id));
 
       verify(terminationService, times(1)).resendPassword(terminationId.id());
       assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());

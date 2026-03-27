@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.application.service;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -28,15 +46,11 @@ import se.inera.intyg.cts.domain.service.SendPackagePassword;
 @ExtendWith(MockitoExtension.class)
 class MessageServiceImplTest {
 
-  @Mock
-  private TerminationRepository terminationRepository;
-  @Mock
-  private SendPackagePassword sendPackagePassword;
-  @Mock
-  private SendPackageNotification sendPackageNotification;
+  @Mock private TerminationRepository terminationRepository;
+  @Mock private SendPackagePassword sendPackagePassword;
+  @Mock private SendPackageNotification sendPackageNotification;
 
-  @InjectMocks
-  private MessageServiceImpl messageService;
+  @InjectMocks private MessageServiceImpl messageService;
 
   private final Termination termination1 = defaultTermination();
   private final Termination termination2 = defaultTermination();
@@ -148,8 +162,10 @@ class MessageServiceImplTest {
     @Test
     void sendReminderForAllEvenIfOneFail() {
       final var notificationTime = LocalDateTime.now().minusDays(15L);
-      final var terminations = List.of(terminationWithNotificationTime(notificationTime),
-          terminationWithNotificationTime(notificationTime));
+      final var terminations =
+          List.of(
+              terminationWithNotificationTime(notificationTime),
+              terminationWithNotificationTime(notificationTime));
       when(terminationRepository.findByStatuses(anyList())).thenReturn(terminations);
       doThrow(new RuntimeException()).when(sendPackageNotification).sendReminder(termination1);
 

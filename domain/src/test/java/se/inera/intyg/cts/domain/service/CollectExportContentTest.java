@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.domain.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,9 +59,12 @@ class CollectExportContentTest {
     inMemoryCertificateBatchRepository = new InMemoryCertificateBatchRepository();
     inMemoryCertificateRepository = new InMemoryCertificateRepository();
     inMemoryCertificateTextRepository = new InMemoryCertificateTextRepository();
-    collectExportContent = new CollectExportContentImpl(inMemoryTerminationRepository,
-        inMemoryCertificateBatchRepository, inMemoryCertificateRepository,
-        inMemoryCertificateTextRepository);
+    collectExportContent =
+        new CollectExportContentImpl(
+            inMemoryTerminationRepository,
+            inMemoryCertificateBatchRepository,
+            inMemoryCertificateRepository,
+            inMemoryCertificateTextRepository);
   }
 
   @Nested
@@ -51,9 +72,9 @@ class CollectExportContentTest {
 
     @Test
     void shallThrowIllegalArgumentExceptionIfTerminationDoesntExists() {
-      assertThrows(IllegalArgumentException.class,
-          () -> collectExportContent.collectCertificates(new TerminationId(UUID.randomUUID()))
-      );
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> collectExportContent.collectCertificates(new TerminationId(UUID.randomUUID())));
     }
 
     @Nested
@@ -67,11 +88,7 @@ class CollectExportContentTest {
         final var termination = defaultTermination();
         inMemoryTerminationRepository.store(termination);
         inMemoryCertificateBatchRepository.prepare(
-            new CertificateBatch(
-                new CertificateSummary(50, 0),
-                certificates(BATCH_SIZE)
-            )
-        );
+            new CertificateBatch(new CertificateSummary(50, 0), certificates(BATCH_SIZE)));
         terminationId = termination.terminationId();
       }
 
@@ -79,8 +96,8 @@ class CollectExportContentTest {
       void shallChangeStatusOfTerminationToCollectingWhenFirstBatchIsCollected() {
         collectExportContent.collectCertificates(terminationId);
 
-        assertEquals(TerminationStatus.COLLECTING_CERTIFICATES,
-            termination(terminationId).status());
+        assertEquals(
+            TerminationStatus.COLLECTING_CERTIFICATES, termination(terminationId).status());
       }
 
       @Test
@@ -103,7 +120,8 @@ class CollectExportContentTest {
 
         collectExportContent.collectCertificates(terminationId);
 
-        assertEquals(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED,
+        assertEquals(
+            TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED,
             termination(terminationId).status());
       }
     }
@@ -119,11 +137,7 @@ class CollectExportContentTest {
         final var termination = defaultTermination();
         inMemoryTerminationRepository.store(termination);
         inMemoryCertificateBatchRepository.prepare(
-            new CertificateBatch(
-                new CertificateSummary(50, 0),
-                certificates(BATCH_SIZE)
-            )
-        );
+            new CertificateBatch(new CertificateSummary(50, 0), certificates(BATCH_SIZE)));
         terminationId = termination.terminationId();
       }
 
@@ -132,7 +146,8 @@ class CollectExportContentTest {
         collectExportContent.collectCertificates(terminationId);
         collectExportContent.collectCertificates(terminationId);
 
-        assertEquals(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED,
+        assertEquals(
+            TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED,
             termination(terminationId).status());
       }
     }
@@ -144,9 +159,7 @@ class CollectExportContentTest {
             new Certificate(
                 new CertificateId(UUID.randomUUID().toString()),
                 false,
-                new CertificateXML("<xml></xml>")
-            )
-        );
+                new CertificateXML("<xml></xml>")));
       }
       return certificates;
     }
@@ -166,22 +179,19 @@ class CollectExportContentTest {
               new CertificateText(
                   new CertificateType("type1"),
                   new CertificateTypeVersion("version1"),
-                  new CertificateXML("<text></text>")
-              ),
+                  new CertificateXML("<text></text>")),
               new CertificateText(
                   new CertificateType("type2"),
                   new CertificateTypeVersion("version2"),
-                  new CertificateXML("<text></text>")
-              )
-          )
-      );
+                  new CertificateXML("<text></text>"))));
     }
 
     @Test
     void shallChangeStatusToCertificateTextsCollectedWhenCollected() {
       collectExportContent.collectCertificateTexts(termination);
 
-      assertEquals(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED,
+      assertEquals(
+          TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED,
           termination(termination.terminationId()).status());
     }
 

@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.service;
 
 import java.io.File;
@@ -40,7 +58,8 @@ public class CreateEncryptedZipPackage implements CreatePackage {
   private final CertificateTextEntityRepository certificateTextEntityRepository;
   private final String rootDir;
 
-  public CreateEncryptedZipPackage(TerminationEntityRepository terminationEntityRepository,
+  public CreateEncryptedZipPackage(
+      TerminationEntityRepository terminationEntityRepository,
       CertificateEntityRepository certificateEntityRepository,
       CertificateTextEntityRepository certificateTextEntityRepository,
       @Value("${export.package.root.dir}") String rootDir) {
@@ -50,34 +69,32 @@ public class CreateEncryptedZipPackage implements CreatePackage {
     this.rootDir = rootDir;
   }
 
-
   /**
    * Creates an encrypted package for requested Termination. The encrypted package will contain the
    * related Certificates and CertificateTexts.
    *
    * @param termination Termination to create an encrypted package for.
-   * @param password    Password to use when encrypting the password.
+   * @param password Password to use when encrypting the password.
    * @return File referring to the created encrypted package.
    */
   @Override
   public File create(Termination termination, Password password) {
-    final var terminationEntity = terminationEntityRepository.findByTerminationId(
-        termination.terminationId().id()).orElseThrow();
+    final var terminationEntity =
+        terminationEntityRepository
+            .findByTerminationId(termination.terminationId().id())
+            .orElseThrow();
     final var certificates = certificateEntityRepository.findAllByTermination(terminationEntity);
-    final var certificateTexts = certificateTextEntityRepository.findAllByTermination(
-        terminationEntity);
+    final var certificateTexts =
+        certificateTextEntityRepository.findAllByTermination(terminationEntity);
 
     createDirIfNotExists(rootDir(termination));
     createDirIfNotExists(certificatesDir(termination));
     createDirIfNotExists(certificateTextsDir(termination));
 
-    certificates.forEach(
-        certificateEntity -> writeCertificateFile(termination, certificateEntity)
-    );
+    certificates.forEach(certificateEntity -> writeCertificateFile(termination, certificateEntity));
 
     certificateTexts.forEach(
-        certificateTextEntity -> writeCertificateTextFile(termination, certificateTextEntity)
-    );
+        certificateTextEntity -> writeCertificateTextFile(termination, certificateTextEntity));
 
     final var zipFile = writeZipFile(termination, password).getFile();
 
@@ -112,9 +129,8 @@ public class CreateEncryptedZipPackage implements CreatePackage {
   }
 
   private void writeCertificateFile(Termination termination, CertificateEntity certificate) {
-    final var file = Paths.get(
-        certificatesDir(termination) + "/" + certificateFileName(certificate)
-    );
+    final var file =
+        Paths.get(certificatesDir(termination) + "/" + certificateFileName(certificate));
 
     try {
       final var xml = decodeBase64Xml(certificate.getXml());
@@ -132,11 +148,13 @@ public class CreateEncryptedZipPackage implements CreatePackage {
     return certificate.isRevoked() ? REVOKED_FILENAME : "";
   }
 
-  private void writeCertificateTextFile(Termination termination,
-      CertificateTextEntity certificateTextEntity) {
-    final var file = Paths.get(
-        certificateTextsDir(termination) + "/" + certificateTextFileName(certificateTextEntity)
-    );
+  private void writeCertificateTextFile(
+      Termination termination, CertificateTextEntity certificateTextEntity) {
+    final var file =
+        Paths.get(
+            certificateTextsDir(termination)
+                + "/"
+                + certificateTextFileName(certificateTextEntity));
 
     try {
       final var xml = decodeBase64Xml(certificateTextEntity.getXml());
@@ -151,8 +169,10 @@ public class CreateEncryptedZipPackage implements CreatePackage {
   }
 
   private String certificateTextFileName(CertificateTextEntity certificateTextEntity) {
-    return certificateTextEntity.getCertificateType() + "-"
-        + certificateTextEntity.getCertificateTypeVersion() + XML_EXTENSION;
+    return certificateTextEntity.getCertificateType()
+        + "-"
+        + certificateTextEntity.getCertificateTypeVersion()
+        + XML_EXTENSION;
   }
 
   private ZipFile writeZipFile(Termination termination, Password password) {
@@ -166,10 +186,9 @@ public class CreateEncryptedZipPackage implements CreatePackage {
   }
 
   private ZipFile createZipFile(Termination termination, Password password) {
-    return new ZipFile(rootDir +
-        termination.careProvider().hsaId().id() + ZIP_EXTENSION,
-        password.password().toCharArray()
-    );
+    return new ZipFile(
+        rootDir + termination.careProvider().hsaId().id() + ZIP_EXTENSION,
+        password.password().toCharArray());
   }
 
   private ZipParameters zipParameters() {

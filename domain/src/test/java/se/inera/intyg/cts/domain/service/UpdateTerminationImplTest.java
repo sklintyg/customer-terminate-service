@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.domain.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,17 +46,13 @@ import se.inera.intyg.cts.domain.repository.TerminationRepository;
 @ExtendWith(MockitoExtension.class)
 class UpdateTerminationImplTest {
 
-  @Mock
-  private TerminationRepository terminationRepository;
+  @Mock private TerminationRepository terminationRepository;
 
-  @Mock
-  private CertificateRepository certificateRepository;
+  @Mock private CertificateRepository certificateRepository;
 
-  @Mock
-  private CertificateTextRepository certificateTextRepository;
+  @Mock private CertificateTextRepository certificateTextRepository;
 
-  @InjectMocks
-  private UpdateTerminationImpl updateTermination;
+  @InjectMocks private UpdateTerminationImpl updateTermination;
 
   @BeforeEach
   void setUp() {
@@ -54,17 +68,16 @@ class UpdateTerminationImplTest {
     @BeforeEach
     void setUp() {
       newHsaId = new HSAId("NewHsaId");
-      final var termination = defaultTerminationBuilder()
-          .status(TerminationStatus.EXPORTED)
-          .create();
+      final var termination =
+          defaultTerminationBuilder().status(TerminationStatus.EXPORTED).create();
 
-      updatedTermination = updateTermination.update(
-          termination,
-          newHsaId,
-          termination.export().organizationRepresentative().personId(),
-          termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+      updatedTermination =
+          updateTermination.update(
+              termination,
+              newHsaId,
+              termination.export().organizationRepresentative().personId(),
+              termination.export().organizationRepresentative().emailAddress(),
+              termination.export().organizationRepresentative().phoneNumber());
     }
 
     @Test
@@ -90,17 +103,16 @@ class UpdateTerminationImplTest {
     @Test
     void shallStoreUpdatedTerminationInRepository() {
       final var newHsaId = new HSAId("NewHsaId");
-      final var termination = defaultTerminationBuilder()
-          .status(TerminationStatus.EXPORTED)
-          .create();
+      final var termination =
+          defaultTerminationBuilder().status(TerminationStatus.EXPORTED).create();
 
-      final var updatedTermination = updateTermination.update(
-          termination,
-          newHsaId,
-          termination.export().organizationRepresentative().personId(),
-          termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+      final var updatedTermination =
+          updateTermination.update(
+              termination,
+              newHsaId,
+              termination.export().organizationRepresentative().personId(),
+              termination.export().organizationRepresentative().emailAddress(),
+              termination.export().organizationRepresentative().phoneNumber());
 
       verify(terminationRepository, times(1)).store(updatedTermination);
     }
@@ -115,29 +127,28 @@ class UpdateTerminationImplTest {
     @BeforeEach
     void setUp() {
       newPersonId = new PersonId("NewPersonId");
-      final var termination = defaultTerminationBuilder()
-          .status(TerminationStatus.EXPORTED)
-          .create();
+      final var termination =
+          defaultTerminationBuilder().status(TerminationStatus.EXPORTED).create();
 
-      updatedTermination = updateTermination.update(
-          termination,
-          termination.careProvider().hsaId(),
-          newPersonId,
-          termination.export().organizationRepresentative().emailAddress(),
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+      updatedTermination =
+          updateTermination.update(
+              termination,
+              termination.careProvider().hsaId(),
+              newPersonId,
+              termination.export().organizationRepresentative().emailAddress(),
+              termination.export().organizationRepresentative().phoneNumber());
     }
 
     @Test
     void shallUpdateHsaId() {
-      assertEquals(newPersonId,
-          updatedTermination.export().organizationRepresentative().personId());
+      assertEquals(
+          newPersonId, updatedTermination.export().organizationRepresentative().personId());
     }
 
     @Test
     void shallResetStatus() {
-      assertEquals(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED,
-          updatedTermination.status());
+      assertEquals(
+          TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED, updatedTermination.status());
     }
 
     @Test
@@ -165,23 +176,22 @@ class UpdateTerminationImplTest {
     @BeforeEach
     void setUp() {
       newEmailAddress = new EmailAddress("NewEmailAddress");
-      final var termination = defaultTerminationBuilder()
-          .status(TerminationStatus.NOTIFICATION_SENT)
-          .create();
+      final var termination =
+          defaultTerminationBuilder().status(TerminationStatus.NOTIFICATION_SENT).create();
 
-      updatedTermination = updateTermination.update(
-          termination,
-          termination.careProvider().hsaId(),
-          termination.export().organizationRepresentative().personId(),
-          newEmailAddress,
-          termination.export().organizationRepresentative().phoneNumber()
-      );
+      updatedTermination =
+          updateTermination.update(
+              termination,
+              termination.careProvider().hsaId(),
+              termination.export().organizationRepresentative().personId(),
+              newEmailAddress,
+              termination.export().organizationRepresentative().phoneNumber());
     }
 
     @Test
     void shallUpdateEmailAddress() {
-      assertEquals(newEmailAddress,
-          updatedTermination.export().organizationRepresentative().emailAddress());
+      assertEquals(
+          newEmailAddress, updatedTermination.export().organizationRepresentative().emailAddress());
     }
 
     @Test
@@ -214,23 +224,22 @@ class UpdateTerminationImplTest {
     @BeforeEach
     void setUp() {
       newPhoneNumber = new PhoneNumber("NewPhoneNumber");
-      final var termination = defaultTerminationBuilder()
-          .status(TerminationStatus.NOTIFICATION_SENT)
-          .create();
+      final var termination =
+          defaultTerminationBuilder().status(TerminationStatus.NOTIFICATION_SENT).create();
 
-      updatedTermination = updateTermination.update(
-          termination,
-          termination.careProvider().hsaId(),
-          termination.export().organizationRepresentative().personId(),
-          termination.export().organizationRepresentative().emailAddress(),
-          newPhoneNumber
-      );
+      updatedTermination =
+          updateTermination.update(
+              termination,
+              termination.careProvider().hsaId(),
+              termination.export().organizationRepresentative().personId(),
+              termination.export().organizationRepresentative().emailAddress(),
+              newPhoneNumber);
     }
 
     @Test
     void shallUpdatePhoneNumber() {
-      assertEquals(newPhoneNumber,
-          updatedTermination.export().organizationRepresentative().phoneNumber());
+      assertEquals(
+          newPhoneNumber, updatedTermination.export().organizationRepresentative().phoneNumber());
     }
 
     @Test

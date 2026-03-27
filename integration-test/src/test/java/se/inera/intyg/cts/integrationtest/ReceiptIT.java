@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.integrationtest;
 
 import static io.restassured.RestAssured.given;
@@ -20,8 +38,8 @@ class ReceiptIT {
 
   @BeforeEach
   void setUp() {
-    RestAssured.baseURI = System.getProperty("integration.tests.baseUrl",
-        "http://cts.localtest.me");
+    RestAssured.baseURI =
+        System.getProperty("integration.tests.baseUrl", "http://cts.localtest.me");
     testData = TestData.create();
   }
 
@@ -39,14 +57,21 @@ class ReceiptIT {
 
     given()
         .pathParam("terminationId", terminationId)
-        .when().post("/api/v1/receipt/{terminationId}")
-        .then().statusCode(HttpStatus.OK.value());
+        .when()
+        .post("/api/v1/receipt/{terminationId}")
+        .then()
+        .statusCode(HttpStatus.OK.value());
 
-    final var terminationDTO = given()
-        .pathParam("terminationId", terminationId)
-        .when().get("/api/v1/terminations/{terminationId}")
-        .then().statusCode(HttpStatus.OK.value())
-        .extract().response().as(TerminationDTO.class);
+    final var terminationDTO =
+        given()
+            .pathParam("terminationId", terminationId)
+            .when()
+            .get("/api/v1/terminations/{terminationId}")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract()
+            .response()
+            .as(TerminationDTO.class);
 
     assertEquals(TerminationStatus.RECEIPT_RECEIVED.description(), terminationDTO.status());
   }
@@ -59,14 +84,21 @@ class ReceiptIT {
 
     given()
         .pathParam("terminationId", terminationId)
-        .when().post("/api/v1/receipt/{terminationId}")
-        .then().statusCode(HttpStatus.OK.value());
+        .when()
+        .post("/api/v1/receipt/{terminationId}")
+        .then()
+        .statusCode(HttpStatus.OK.value());
 
-    final var exportEmbeddableDTO = given()
-        .pathParam("terminationId", terminationId)
-        .when().get("/testability/v1/terminations/export/{terminationId}")
-        .then().statusCode(HttpStatus.OK.value())
-        .extract().response().as(TestabilityExportEmbeddableDTO.class);
+    final var exportEmbeddableDTO =
+        given()
+            .pathParam("terminationId", terminationId)
+            .when()
+            .get("/testability/v1/terminations/export/{terminationId}")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract()
+            .response()
+            .as(TestabilityExportEmbeddableDTO.class);
 
     assertNotNull(exportEmbeddableDTO.receiptTime());
   }
@@ -77,8 +109,10 @@ class ReceiptIT {
 
     given()
         .pathParam("terminationId", UUID.randomUUID())
-        .when().post("/api/v1/receipt/{terminationId}")
-        .then().statusCode(HttpStatus.NOT_FOUND.value());
+        .when()
+        .post("/api/v1/receipt/{terminationId}")
+        .then()
+        .statusCode(HttpStatus.NOT_FOUND.value());
   }
 
   @Test
@@ -93,11 +127,7 @@ class ReceiptIT {
         .receiptReceived()
         .setup();
 
-    given()
-        .when()
-        .post("/api/v1/exports/sendPasswords")
-        .then()
-        .statusCode(HttpStatus.OK.value());
+    given().when().post("/api/v1/exports/sendPasswords").then().statusCode(HttpStatus.OK.value());
 
     final var generatedPassword = getPassword(testData.terminationIds().get(0));
     final var passwordSentBySMS = getPasswordSentBySMS();
@@ -112,7 +142,8 @@ class ReceiptIT {
         .get("/testability/v1/terminations/{terminationId}/password")
         .then()
         .statusCode(HttpStatus.OK.value())
-        .extract().asString();
+        .extract()
+        .asString();
   }
 
   private String getPasswordSentBySMS() {

@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.application.service;
 
 import static org.mockito.Mockito.doThrow;
@@ -23,29 +41,24 @@ import se.inera.intyg.cts.domain.service.ExportPackage;
 @ExtendWith(MockitoExtension.class)
 class ExportServiceImplTest {
 
-  @Mock
-  private TerminationRepository terminationRepository;
+  @Mock private TerminationRepository terminationRepository;
 
-  @Mock
-  private CollectExportContent collectExportContent;
+  @Mock private CollectExportContent collectExportContent;
 
-  @Mock
-  private ExportPackage exportPackage;
+  @Mock private ExportPackage exportPackage;
 
-  @InjectMocks
-  private ExportServiceImpl exportService;
+  @InjectMocks private ExportServiceImpl exportService;
 
   @Nested
   class CollectingCertificates {
 
     @Test
     void shallCollectCertificatesForTerminationWithStatusCreated() {
-      final var termination = defaultTerminationBuilder()
-          .status(TerminationStatus.CREATED)
-          .create();
+      final var termination =
+          defaultTerminationBuilder().status(TerminationStatus.CREATED).create();
 
       when(terminationRepository.findByStatuses(
-          Arrays.asList(TerminationStatus.CREATED, TerminationStatus.COLLECTING_CERTIFICATES)))
+              Arrays.asList(TerminationStatus.CREATED, TerminationStatus.COLLECTING_CERTIFICATES)))
           .thenReturn(Collections.singletonList(termination));
 
       exportService.collectCertificatesToExport();
@@ -55,12 +68,11 @@ class ExportServiceImplTest {
 
     @Test
     void shallCollectCertificatesForTerminationWithStatusCollectingCertificates() {
-      final var termination = defaultTerminationBuilder()
-          .status(TerminationStatus.COLLECTING_CERTIFICATES)
-          .create();
+      final var termination =
+          defaultTerminationBuilder().status(TerminationStatus.COLLECTING_CERTIFICATES).create();
 
       when(terminationRepository.findByStatuses(
-          Arrays.asList(TerminationStatus.CREATED, TerminationStatus.COLLECTING_CERTIFICATES)))
+              Arrays.asList(TerminationStatus.CREATED, TerminationStatus.COLLECTING_CERTIFICATES)))
           .thenReturn(Collections.singletonList(termination));
 
       exportService.collectCertificatesToExport();
@@ -70,18 +82,20 @@ class ExportServiceImplTest {
 
     @Test
     void shallCollectCertificatesForMultipleTerminationsIfExists() {
-      final var terminationOne = defaultTerminationBuilder()
-          .status(TerminationStatus.COLLECTING_CERTIFICATES)
-          .terminationId(UUID.randomUUID())
-          .create();
+      final var terminationOne =
+          defaultTerminationBuilder()
+              .status(TerminationStatus.COLLECTING_CERTIFICATES)
+              .terminationId(UUID.randomUUID())
+              .create();
 
-      final var terminationTwo = defaultTerminationBuilder()
-          .status(TerminationStatus.COLLECTING_CERTIFICATES)
-          .terminationId(UUID.randomUUID())
-          .create();
+      final var terminationTwo =
+          defaultTerminationBuilder()
+              .status(TerminationStatus.COLLECTING_CERTIFICATES)
+              .terminationId(UUID.randomUUID())
+              .create();
 
       when(terminationRepository.findByStatuses(
-          Arrays.asList(TerminationStatus.CREATED, TerminationStatus.COLLECTING_CERTIFICATES)))
+              Arrays.asList(TerminationStatus.CREATED, TerminationStatus.COLLECTING_CERTIFICATES)))
           .thenReturn(Arrays.asList(terminationOne, terminationTwo));
 
       exportService.collectCertificatesToExport();
@@ -92,22 +106,25 @@ class ExportServiceImplTest {
 
     @Test
     void shallCollectCertificatesForOtherEvenIfOneFails() {
-      final var terminationOne = defaultTerminationBuilder()
-          .status(TerminationStatus.COLLECTING_CERTIFICATES)
-          .terminationId(UUID.randomUUID())
-          .create();
+      final var terminationOne =
+          defaultTerminationBuilder()
+              .status(TerminationStatus.COLLECTING_CERTIFICATES)
+              .terminationId(UUID.randomUUID())
+              .create();
 
-      final var terminationTwo = defaultTerminationBuilder()
-          .status(TerminationStatus.COLLECTING_CERTIFICATES)
-          .terminationId(UUID.randomUUID())
-          .create();
+      final var terminationTwo =
+          defaultTerminationBuilder()
+              .status(TerminationStatus.COLLECTING_CERTIFICATES)
+              .terminationId(UUID.randomUUID())
+              .create();
 
       when(terminationRepository.findByStatuses(
-          Arrays.asList(TerminationStatus.CREATED, TerminationStatus.COLLECTING_CERTIFICATES)))
+              Arrays.asList(TerminationStatus.CREATED, TerminationStatus.COLLECTING_CERTIFICATES)))
           .thenReturn(Arrays.asList(terminationOne, terminationTwo));
 
       doThrow(new RuntimeException("Something went wrong!"))
-          .when(collectExportContent).collectCertificates(terminationOne.terminationId());
+          .when(collectExportContent)
+          .collectCertificates(terminationOne.terminationId());
 
       exportService.collectCertificatesToExport();
 
@@ -121,12 +138,13 @@ class ExportServiceImplTest {
 
     @Test
     void shallCollectCertificateTextsForTerminationWithStatusCollectingCertificatesCompleted() {
-      final var termination = defaultTerminationBuilder()
-          .status(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)
-          .create();
+      final var termination =
+          defaultTerminationBuilder()
+              .status(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)
+              .create();
 
       when(terminationRepository.findByStatuses(
-          Collections.singletonList(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)))
+              Collections.singletonList(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)))
           .thenReturn(Collections.singletonList(termination));
 
       exportService.collectCertificateTextsToExport();
@@ -136,18 +154,20 @@ class ExportServiceImplTest {
 
     @Test
     void shallCollectCertificateTextsForMultipleTerminationsIfExists() {
-      final var terminationOne = defaultTerminationBuilder()
-          .status(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)
-          .terminationId(UUID.randomUUID())
-          .create();
+      final var terminationOne =
+          defaultTerminationBuilder()
+              .status(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)
+              .terminationId(UUID.randomUUID())
+              .create();
 
-      final var terminationTwo = defaultTerminationBuilder()
-          .status(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)
-          .terminationId(UUID.randomUUID())
-          .create();
+      final var terminationTwo =
+          defaultTerminationBuilder()
+              .status(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)
+              .terminationId(UUID.randomUUID())
+              .create();
 
       when(terminationRepository.findByStatuses(
-          Collections.singletonList(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)))
+              Collections.singletonList(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)))
           .thenReturn(Arrays.asList(terminationOne, terminationTwo));
 
       exportService.collectCertificateTextsToExport();
@@ -158,22 +178,25 @@ class ExportServiceImplTest {
 
     @Test
     void shallCollectCertificateTextsForOtherEvenIfOneFails() {
-      final var terminationOne = defaultTerminationBuilder()
-          .status(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)
-          .terminationId(UUID.randomUUID())
-          .create();
+      final var terminationOne =
+          defaultTerminationBuilder()
+              .status(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)
+              .terminationId(UUID.randomUUID())
+              .create();
 
-      final var terminationTwo = defaultTerminationBuilder()
-          .status(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)
-          .terminationId(UUID.randomUUID())
-          .create();
+      final var terminationTwo =
+          defaultTerminationBuilder()
+              .status(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)
+              .terminationId(UUID.randomUUID())
+              .create();
 
       when(terminationRepository.findByStatuses(
-          Collections.singletonList(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)))
+              Collections.singletonList(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED)))
           .thenReturn(Arrays.asList(terminationOne, terminationTwo));
 
       doThrow(new RuntimeException("Something went wrong!"))
-          .when(collectExportContent).collectCertificateTexts(terminationOne);
+          .when(collectExportContent)
+          .collectCertificateTexts(terminationOne);
 
       exportService.collectCertificateTextsToExport();
 
@@ -187,12 +210,13 @@ class ExportServiceImplTest {
 
     @Test
     void shallCollectCertificateTextsForTerminationWithStatusCollectingCertificatesCompleted() {
-      final var termination = defaultTerminationBuilder()
-          .status(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)
-          .create();
+      final var termination =
+          defaultTerminationBuilder()
+              .status(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)
+              .create();
 
       when(terminationRepository.findByStatuses(
-          Collections.singletonList(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)))
+              Collections.singletonList(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)))
           .thenReturn(Collections.singletonList(termination));
 
       exportService.export();
@@ -202,18 +226,20 @@ class ExportServiceImplTest {
 
     @Test
     void shallCollectCertificateTextsForMultipleTerminationsIfExists() {
-      final var terminationOne = defaultTerminationBuilder()
-          .status(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)
-          .terminationId(UUID.randomUUID())
-          .create();
+      final var terminationOne =
+          defaultTerminationBuilder()
+              .status(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)
+              .terminationId(UUID.randomUUID())
+              .create();
 
-      final var terminationTwo = defaultTerminationBuilder()
-          .status(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)
-          .terminationId(UUID.randomUUID())
-          .create();
+      final var terminationTwo =
+          defaultTerminationBuilder()
+              .status(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)
+              .terminationId(UUID.randomUUID())
+              .create();
 
       when(terminationRepository.findByStatuses(
-          Collections.singletonList(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)))
+              Collections.singletonList(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)))
           .thenReturn(Arrays.asList(terminationOne, terminationTwo));
 
       exportService.export();
@@ -224,22 +250,25 @@ class ExportServiceImplTest {
 
     @Test
     void shallCollectCertificateTextsForOtherEvenIfOneFails() {
-      final var terminationOne = defaultTerminationBuilder()
-          .status(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)
-          .terminationId(UUID.randomUUID())
-          .create();
+      final var terminationOne =
+          defaultTerminationBuilder()
+              .status(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)
+              .terminationId(UUID.randomUUID())
+              .create();
 
-      final var terminationTwo = defaultTerminationBuilder()
-          .status(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)
-          .terminationId(UUID.randomUUID())
-          .create();
+      final var terminationTwo =
+          defaultTerminationBuilder()
+              .status(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)
+              .terminationId(UUID.randomUUID())
+              .create();
 
       when(terminationRepository.findByStatuses(
-          Collections.singletonList(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)))
+              Collections.singletonList(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)))
           .thenReturn(Arrays.asList(terminationOne, terminationTwo));
 
       doThrow(new RuntimeException("Something went wrong!"))
-          .when(exportPackage).export(terminationOne);
+          .when(exportPackage)
+          .export(terminationOne);
 
       exportService.export();
 

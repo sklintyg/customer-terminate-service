@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.infrastructure.service;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -30,15 +48,11 @@ import se.inera.intyg.cts.infrastructure.integration.tellustalk.dto.TellusTalkRe
 @ExtendWith(MockitoExtension.class)
 class SendPackageNotificationTest {
 
-  @Mock
-  private SendEmail sendEmail;
-  @Mock
-  private SendSMS sendSMS;
-  @Mock
-  private SmsPhoneNumberFormatter smsPhoneNumberFormatter;
+  @Mock private SendEmail sendEmail;
+  @Mock private SendSMS sendSMS;
+  @Mock private SmsPhoneNumberFormatter smsPhoneNumberFormatter;
 
-  @InjectMocks
-  private SendPackageNotification sendPackageNotification;
+  @InjectMocks private SendPackageNotification sendPackageNotification;
 
   private static final String FORMATTED_PHONE = "sms:+467012345678";
   private static final String EMAIL_ADDRESS = "email@address.se";
@@ -50,8 +64,8 @@ class SendPackageNotificationTest {
   private static final String NOTIFICATION_SUBJECT = "notificationSubject";
 
   private static final Termination TERMINATION = defaultTermination();
-  private static final TellusTalkResponseDTO MESSAGE_RESPONSE = new TellusTalkResponseDTO("jobId",
-      "logHref");
+  private static final TellusTalkResponseDTO MESSAGE_RESPONSE =
+      new TellusTalkResponseDTO("jobId", "logHref");
   private static final Exception BAD_REQUEST = new HttpClientErrorException(HttpStatus.BAD_REQUEST);
 
   @Nested
@@ -59,94 +73,88 @@ class SendPackageNotificationTest {
 
     @BeforeEach
     public void init() {
-      ReflectionTestUtils.setField(sendPackageNotification, NOTIFICATION_SMS_CONTENT,
-          NOTIFICATION_SMS_CONTENT);
-      ReflectionTestUtils.setField(sendPackageNotification, NOTIFICATION_EMAIL_CONTENT,
-          NOTIFICATION_EMAIL_CONTENT);
-      ReflectionTestUtils.setField(sendPackageNotification, NOTIFICATION_SUBJECT,
-          NOTIFICATION_SUBJECT);
+      ReflectionTestUtils.setField(
+          sendPackageNotification, NOTIFICATION_SMS_CONTENT, NOTIFICATION_SMS_CONTENT);
+      ReflectionTestUtils.setField(
+          sendPackageNotification, NOTIFICATION_EMAIL_CONTENT, NOTIFICATION_EMAIL_CONTENT);
+      ReflectionTestUtils.setField(
+          sendPackageNotification, NOTIFICATION_SUBJECT, NOTIFICATION_SUBJECT);
       doReturn(FORMATTED_PHONE).when(smsPhoneNumberFormatter).formatPhoneNumber(any(String.class));
     }
 
     @Test
-    void shouldReturnTrueWhenNotificationSmsAndEmailSentSuccessfully()
-        throws MessagingException {
+    void shouldReturnTrueWhenNotificationSmsAndEmailSentSuccessfully() throws MessagingException {
       setSmsMock(MESSAGE_RESPONSE);
 
       final var response = sendPackageNotification.sendNotification(TERMINATION);
 
       verify(sendSMS, times(1)).sendSMS(FORMATTED_PHONE, NOTIFICATION_SMS_CONTENT);
-      verify(sendEmail, times(1)).sendEmail(EMAIL_ADDRESS, NOTIFICATION_EMAIL_CONTENT,
-          NOTIFICATION_SUBJECT);
+      verify(sendEmail, times(1))
+          .sendEmail(EMAIL_ADDRESS, NOTIFICATION_EMAIL_CONTENT, NOTIFICATION_SUBJECT);
       assertTrue(response);
     }
 
     @Test
-    void shouldReturnTrueWhenNotificationSmsSuccessAndEmailFailure()
-        throws MessagingException {
+    void shouldReturnTrueWhenNotificationSmsSuccessAndEmailFailure() throws MessagingException {
       setSmsMock(MESSAGE_RESPONSE);
       setEmailMockToThrow();
 
       final var response = sendPackageNotification.sendNotification(TERMINATION);
 
       verify(sendSMS, times(1)).sendSMS(FORMATTED_PHONE, NOTIFICATION_SMS_CONTENT);
-      verify(sendEmail, times(1)).sendEmail(EMAIL_ADDRESS, NOTIFICATION_EMAIL_CONTENT,
-          NOTIFICATION_SUBJECT);
+      verify(sendEmail, times(1))
+          .sendEmail(EMAIL_ADDRESS, NOTIFICATION_EMAIL_CONTENT, NOTIFICATION_SUBJECT);
       assertTrue(response);
     }
 
     @Test
-    void shouldReturnTrueWhenNotificationSmsFailureAndEmailSuccess()
-        throws MessagingException {
+    void shouldReturnTrueWhenNotificationSmsFailureAndEmailSuccess() throws MessagingException {
       setSmsMock(BAD_REQUEST);
 
       final var response = sendPackageNotification.sendNotification(TERMINATION);
 
       verify(sendSMS, times(1)).sendSMS(FORMATTED_PHONE, NOTIFICATION_SMS_CONTENT);
-      verify(sendEmail, times(1)).sendEmail(EMAIL_ADDRESS, NOTIFICATION_EMAIL_CONTENT,
-          NOTIFICATION_SUBJECT);
+      verify(sendEmail, times(1))
+          .sendEmail(EMAIL_ADDRESS, NOTIFICATION_EMAIL_CONTENT, NOTIFICATION_SUBJECT);
       assertTrue(response);
     }
 
     @Test
-    void shouldReturnFalseWhenNotificationSmsFailureAndEmailFailure()
-        throws MessagingException {
+    void shouldReturnFalseWhenNotificationSmsFailureAndEmailFailure() throws MessagingException {
       setSmsMock(BAD_REQUEST);
       setEmailMockToThrow();
 
       final var response = sendPackageNotification.sendNotification(TERMINATION);
 
       verify(sendSMS, times(1)).sendSMS(FORMATTED_PHONE, NOTIFICATION_SMS_CONTENT);
-      verify(sendEmail, times(1)).sendEmail(EMAIL_ADDRESS, NOTIFICATION_EMAIL_CONTENT,
-          NOTIFICATION_SUBJECT);
+      verify(sendEmail, times(1))
+          .sendEmail(EMAIL_ADDRESS, NOTIFICATION_EMAIL_CONTENT, NOTIFICATION_SUBJECT);
       assertFalse(response);
     }
   }
-
 
   @Nested
   class TestSendReminder {
 
     @BeforeEach
     public void init() {
-      ReflectionTestUtils.setField(sendPackageNotification, REMINDER_SMS_CONTENT,
-          REMINDER_SMS_CONTENT);
-      ReflectionTestUtils.setField(sendPackageNotification, REMINDER_EMAIL_CONTENT,
-          REMINDER_EMAIL_CONTENT);
+      ReflectionTestUtils.setField(
+          sendPackageNotification, REMINDER_SMS_CONTENT, REMINDER_SMS_CONTENT);
+      ReflectionTestUtils.setField(
+          sendPackageNotification, REMINDER_EMAIL_CONTENT, REMINDER_EMAIL_CONTENT);
       ReflectionTestUtils.setField(sendPackageNotification, REMINDER_SUBJECT, REMINDER_SUBJECT);
       doReturn(FORMATTED_PHONE).when(smsPhoneNumberFormatter).formatPhoneNumber(any(String.class));
     }
 
     @Test
-    void shouldReturnTrueWhenReminderSmsAndEmailSentSuccessfully()
-        throws MessagingException {
+    void shouldReturnTrueWhenReminderSmsAndEmailSentSuccessfully() throws MessagingException {
       setSmsMock(MESSAGE_RESPONSE);
 
       final var response = sendPackageNotification.sendReminder(TERMINATION);
 
       verify(sendSMS, times(1)).sendSMS(FORMATTED_PHONE, REMINDER_SMS_CONTENT);
-      verify(sendEmail, times(1)).sendEmail(EMAIL_ADDRESS, REMINDER_EMAIL_CONTENT,
-          REMINDER_SUBJECT);
+      verify(sendEmail, times(1))
+          .sendEmail(EMAIL_ADDRESS, REMINDER_EMAIL_CONTENT, REMINDER_SUBJECT);
       assertTrue(response);
     }
 
@@ -158,8 +166,8 @@ class SendPackageNotificationTest {
       final var response = sendPackageNotification.sendReminder(TERMINATION);
 
       verify(sendSMS, times(1)).sendSMS(FORMATTED_PHONE, REMINDER_SMS_CONTENT);
-      verify(sendEmail, times(1)).sendEmail(EMAIL_ADDRESS, REMINDER_EMAIL_CONTENT,
-          REMINDER_SUBJECT);
+      verify(sendEmail, times(1))
+          .sendEmail(EMAIL_ADDRESS, REMINDER_EMAIL_CONTENT, REMINDER_SUBJECT);
       assertTrue(response);
     }
 
@@ -170,8 +178,8 @@ class SendPackageNotificationTest {
       final var response = sendPackageNotification.sendReminder(TERMINATION);
 
       verify(sendSMS, times(1)).sendSMS(FORMATTED_PHONE, REMINDER_SMS_CONTENT);
-      verify(sendEmail, times(1)).sendEmail(EMAIL_ADDRESS, REMINDER_EMAIL_CONTENT,
-          REMINDER_SUBJECT);
+      verify(sendEmail, times(1))
+          .sendEmail(EMAIL_ADDRESS, REMINDER_EMAIL_CONTENT, REMINDER_SUBJECT);
       assertTrue(response);
     }
 
@@ -183,8 +191,8 @@ class SendPackageNotificationTest {
       final var response = sendPackageNotification.sendReminder(TERMINATION);
 
       verify(sendSMS, times(1)).sendSMS(FORMATTED_PHONE, REMINDER_SMS_CONTENT);
-      verify(sendEmail, times(1)).sendEmail(EMAIL_ADDRESS, REMINDER_EMAIL_CONTENT,
-          REMINDER_SUBJECT);
+      verify(sendEmail, times(1))
+          .sendEmail(EMAIL_ADDRESS, REMINDER_EMAIL_CONTENT, REMINDER_SUBJECT);
       assertFalse(response);
     }
   }
@@ -194,12 +202,12 @@ class SendPackageNotificationTest {
 
     @BeforeEach
     public void init() {
-      ReflectionTestUtils.setField(sendPackageNotification, NOTIFICATION_SMS_CONTENT,
-          NOTIFICATION_SMS_CONTENT);
-      ReflectionTestUtils.setField(sendPackageNotification, NOTIFICATION_EMAIL_CONTENT,
-          NOTIFICATION_EMAIL_CONTENT);
-      ReflectionTestUtils.setField(sendPackageNotification, NOTIFICATION_SUBJECT,
-          NOTIFICATION_SUBJECT);
+      ReflectionTestUtils.setField(
+          sendPackageNotification, NOTIFICATION_SMS_CONTENT, NOTIFICATION_SMS_CONTENT);
+      ReflectionTestUtils.setField(
+          sendPackageNotification, NOTIFICATION_EMAIL_CONTENT, NOTIFICATION_EMAIL_CONTENT);
+      ReflectionTestUtils.setField(
+          sendPackageNotification, NOTIFICATION_SUBJECT, NOTIFICATION_SUBJECT);
       doReturn(FORMATTED_PHONE).when(smsPhoneNumberFormatter).formatPhoneNumber(any(String.class));
     }
 
@@ -210,9 +218,9 @@ class SendPackageNotificationTest {
 
       sendPackageNotification.sendNotification(termination);
 
-      verify(sendEmail, times(1)).sendEmail("no-reply.example@address.name.se",
-          NOTIFICATION_EMAIL_CONTENT,
-          NOTIFICATION_SUBJECT);
+      verify(sendEmail, times(1))
+          .sendEmail(
+              "no-reply.example@address.name.se", NOTIFICATION_EMAIL_CONTENT, NOTIFICATION_SUBJECT);
     }
 
     @Test
@@ -222,9 +230,9 @@ class SendPackageNotificationTest {
 
       sendPackageNotification.sendNotification(termination);
 
-      verify(sendEmail, times(1)).sendEmail("example@test-name.address.se",
-          NOTIFICATION_EMAIL_CONTENT,
-          NOTIFICATION_SUBJECT);
+      verify(sendEmail, times(1))
+          .sendEmail(
+              "example@test-name.address.se", NOTIFICATION_EMAIL_CONTENT, NOTIFICATION_SUBJECT);
     }
 
     @Test
@@ -267,8 +275,8 @@ class SendPackageNotificationTest {
   }
 
   private void setEmailMockToThrow() throws MessagingException {
-    doThrow(MessagingException.class).when(sendEmail)
-        .sendEmail(any(String.class), any(String.class),
-            any(String.class));
+    doThrow(MessagingException.class)
+        .when(sendEmail)
+        .sendEmail(any(String.class), any(String.class), any(String.class));
   }
 }

@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.testability.service;
 
 import static se.inera.intyg.cts.testability.dto.TestabilityTerminationDTOMapper.toEntity;
@@ -34,7 +52,8 @@ public class TestabilityTerminationService {
   private final CertificateEntityRepository certificateEntityRepository;
   private final CertificateTextEntityRepository certificateTextEntityRepository;
 
-  public TestabilityTerminationService(TerminationEntityRepository terminationEntityRepository,
+  public TestabilityTerminationService(
+      TerminationEntityRepository terminationEntityRepository,
       CertificateEntityRepository certificateEntityRepository,
       CertificateTextEntityRepository certificateTextEntityRepository) {
     this.terminationEntityRepository = terminationEntityRepository;
@@ -49,48 +68,48 @@ public class TestabilityTerminationService {
 
   @Transactional
   public void saveCertificates(UUID terminationId, List<CertificateXmlDTO> certificateXmlDTOList) {
-    final var terminationEntity = terminationEntityRepository.findByTerminationId(terminationId)
-        .orElseThrow();
+    final var terminationEntity =
+        terminationEntityRepository.findByTerminationId(terminationId).orElseThrow();
     terminationEntity.setStatus(TerminationStatus.COLLECTING_CERTIFICATES_COMPLETED.name());
     terminationEntity.getExport().setTotal(certificateXmlDTOList.size());
-    terminationEntity.getExport().setRevoked(
-        (int) certificateXmlDTOList.stream()
-            .filter(CertificateXmlDTO::revoked)
-            .count());
-    final var certificates = certificateXmlDTOList.stream()
-        .map(certificateXmlDTO ->
-            new Certificate(
-                new CertificateId(certificateXmlDTO.id()),
-                certificateXmlDTO.revoked(),
-                new CertificateXML(certificateXmlDTO.xml())
-            )
-        )
-        .map(certificate -> CertificateEntityMapper.toEntity(certificate, terminationEntity))
-        .collect(Collectors.toList());
+    terminationEntity
+        .getExport()
+        .setRevoked(
+            (int) certificateXmlDTOList.stream().filter(CertificateXmlDTO::revoked).count());
+    final var certificates =
+        certificateXmlDTOList.stream()
+            .map(
+                certificateXmlDTO ->
+                    new Certificate(
+                        new CertificateId(certificateXmlDTO.id()),
+                        certificateXmlDTO.revoked(),
+                        new CertificateXML(certificateXmlDTO.xml())))
+            .map(certificate -> CertificateEntityMapper.toEntity(certificate, terminationEntity))
+            .collect(Collectors.toList());
 
     certificateEntityRepository.saveAll(certificates);
     terminationEntityRepository.save(terminationEntity);
   }
 
   @Transactional
-  public void saveCertificateTexts(UUID terminationId,
-      List<CertificateTextDTO> certificateTextDTOList) {
+  public void saveCertificateTexts(
+      UUID terminationId, List<CertificateTextDTO> certificateTextDTOList) {
 
-    final var terminationEntity = terminationEntityRepository.findByTerminationId(terminationId)
-        .orElseThrow();
+    final var terminationEntity =
+        terminationEntityRepository.findByTerminationId(terminationId).orElseThrow();
     terminationEntity.setStatus(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED.name());
-    final var certificateTexts = certificateTextDTOList.stream()
-        .map(certificateTextDTO ->
-            new CertificateText(
-                new CertificateType(certificateTextDTO.type()),
-                new CertificateTypeVersion(certificateTextDTO.version()),
-                new CertificateXML(certificateTextDTO.xml())
-            )
-        )
-        .map(certificateText ->
-            CertificateTextEntityMapper.toEntity(certificateText, terminationEntity)
-        )
-        .collect(Collectors.toList());
+    final var certificateTexts =
+        certificateTextDTOList.stream()
+            .map(
+                certificateTextDTO ->
+                    new CertificateText(
+                        new CertificateType(certificateTextDTO.type()),
+                        new CertificateTypeVersion(certificateTextDTO.version()),
+                        new CertificateXML(certificateTextDTO.xml())))
+            .map(
+                certificateText ->
+                    CertificateTextEntityMapper.toEntity(certificateText, terminationEntity))
+            .collect(Collectors.toList());
 
     certificateTextEntityRepository.saveAll(certificateTexts);
     terminationEntityRepository.save(terminationEntity);
@@ -115,24 +134,26 @@ public class TestabilityTerminationService {
 
   public int getCertificateTextsCount(UUID terminationId) {
     final var terminationEntity = terminationEntityRepository.findByTerminationId(terminationId);
-    return certificateTextEntityRepository.findAllByTermination(terminationEntity.orElseThrow())
+    return certificateTextEntityRepository
+        .findAllByTermination(terminationEntity.orElseThrow())
         .size();
   }
 
   private void deleteTermination(TerminationEntity terminationEntity) {
-    final var certificateEntityList = certificateEntityRepository.findAllByTermination(
-        terminationEntity);
+    final var certificateEntityList =
+        certificateEntityRepository.findAllByTermination(terminationEntity);
     certificateEntityRepository.deleteAll(certificateEntityList);
 
-    final var certificateTextEntityList = certificateTextEntityRepository.findAllByTermination(
-        terminationEntity);
+    final var certificateTextEntityList =
+        certificateTextEntityRepository.findAllByTermination(terminationEntity);
     certificateTextEntityRepository.deleteAll(certificateTextEntityList);
 
     terminationEntityRepository.delete(terminationEntity);
   }
 
   public String getPassword(UUID terminationId) {
-    return terminationEntityRepository.findByTerminationId(terminationId)
+    return terminationEntityRepository
+        .findByTerminationId(terminationId)
         .orElseThrow()
         .getExport()
         .getPassword();
@@ -140,8 +161,8 @@ public class TestabilityTerminationService {
 
   @Transactional
   public void setAsUploaded(UUID terminationId, String password) {
-    final var terminationEntity = terminationEntityRepository.findByTerminationId(terminationId)
-        .orElseThrow();
+    final var terminationEntity =
+        terminationEntityRepository.findByTerminationId(terminationId).orElseThrow();
 
     terminationEntity.setStatus(TerminationStatus.EXPORTED.name());
     terminationEntity.getExport().setPassword(password);
@@ -151,8 +172,8 @@ public class TestabilityTerminationService {
 
   @Transactional
   public void setAsNotificationSent(UUID terminationId, LocalDateTime notificationTime) {
-    final var terminationEntity = terminationEntityRepository.findByTerminationId(terminationId)
-        .orElseThrow();
+    final var terminationEntity =
+        terminationEntityRepository.findByTerminationId(terminationId).orElseThrow();
 
     terminationEntity.setStatus(TerminationStatus.NOTIFICATION_SENT.name());
     terminationEntity.getExport().setNotificationTime(notificationTime);
@@ -162,8 +183,8 @@ public class TestabilityTerminationService {
 
   @Transactional
   public void setAsReceiptReceived(UUID terminationId) {
-    final var terminationEntity = terminationEntityRepository.findByTerminationId(terminationId)
-        .orElseThrow();
+    final var terminationEntity =
+        terminationEntityRepository.findByTerminationId(terminationId).orElseThrow();
 
     terminationEntity.setStatus(TerminationStatus.RECEIPT_RECEIVED.name());
     terminationEntity.getExport().setReceiptTime(LocalDateTime.now());
@@ -172,8 +193,6 @@ public class TestabilityTerminationService {
   }
 
   public String getStatus(UUID terminationId) {
-    return terminationEntityRepository.findByTerminationId(terminationId)
-        .orElseThrow()
-        .getStatus();
+    return terminationEntityRepository.findByTerminationId(terminationId).orElseThrow().getStatus();
   }
 }

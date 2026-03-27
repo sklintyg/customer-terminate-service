@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Inera AB (http://www.inera.se)
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
  *
  * This file is part of sklintyg (https://github.com/sklintyg).
  *
@@ -31,10 +31,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableSchedulerLock(defaultLockAtMostFor = "PT30S")
 public class JobConfig {
 
-    private static final String ENVIRONMENT = "cts";
+  private static final String ENVIRONMENT = "cts";
 
-    @Bean
-    public LockProvider lockProvider(RedisConnectionFactory jedisConnectionFactory ) {
-        return new RedisLockProvider(jedisConnectionFactory, ENVIRONMENT);
-    }
+  @Bean
+  public LockProvider lockProvider(RedisConnectionFactory jedisConnectionFactory) {
+    return new RedisLockProvider(jedisConnectionFactory, ENVIRONMENT);
+  }
 }

@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.testutil;
 
 import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.defaultTerminationEntity;
@@ -20,15 +38,14 @@ public class CertificateTextTestDataBuilder {
   public static String DEFAULT_CERTIFICATE_TYPE = "certificateType";
   public static String DEFAULT_CERTIFICATE_TYPE_VERSION = "1.5";
   public static String DEFAULT_XML = "<xml></xml>";
-  public static String DEFAULT_XML_AS_BASE64 = Base64.getEncoder()
-      .encodeToString(DEFAULT_XML.getBytes(StandardCharsets.UTF_8));
+  public static String DEFAULT_XML_AS_BASE64 =
+      Base64.getEncoder().encodeToString(DEFAULT_XML.getBytes(StandardCharsets.UTF_8));
 
   public static CertificateText defaultCertificateText() {
     return new CertificateText(
         new CertificateType(DEFAULT_CERTIFICATE_TYPE),
         new CertificateTypeVersion(DEFAULT_CERTIFICATE_TYPE_VERSION),
-        new CertificateXML(DEFAULT_XML)
-    );
+        new CertificateXML(DEFAULT_XML));
   }
 
   public static CertificateTextEntity defaultCertificateTextEntity() {
@@ -37,8 +54,7 @@ public class CertificateTextTestDataBuilder {
         DEFAULT_CERTIFICATE_TYPE,
         DEFAULT_CERTIFICATE_TYPE_VERSION,
         DEFAULT_XML_AS_BASE64,
-        defaultTerminationEntity()
-    );
+        defaultTerminationEntity());
   }
 
   public static List<CertificateText> certificateTexts(int total) {
@@ -48,9 +64,7 @@ public class CertificateTextTestDataBuilder {
           new CertificateText(
               new CertificateType(DEFAULT_CERTIFICATE_TYPE + i),
               new CertificateTypeVersion(DEFAULT_CERTIFICATE_TYPE_VERSION),
-              new CertificateXML(DEFAULT_XML)
-          )
-      );
+              new CertificateXML(DEFAULT_XML)));
     }
     return certificateTexts;
   }
@@ -65,9 +79,7 @@ public class CertificateTextTestDataBuilder {
               DEFAULT_CERTIFICATE_TYPE + i,
               DEFAULT_CERTIFICATE_TYPE_VERSION,
               DEFAULT_XML_AS_BASE64,
-              terminationEntity
-          )
-      );
+              terminationEntity));
     }
     return certificates;
   }

@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.domain.service;
 
 import java.util.List;
@@ -19,7 +37,8 @@ public class EraseDataForCareProviderImpl implements EraseDataForCareProvider {
   private final CertificateBatchRepository certificateBatchRepository;
   private final TerminationRepository terminationRepository;
 
-  public EraseDataForCareProviderImpl(List<EraseDataInService> services,
+  public EraseDataForCareProviderImpl(
+      List<EraseDataInService> services,
       CertificateBatchRepository certificateBatchRepository,
       TerminationRepository terminationRepository) {
     this.services = services;
@@ -30,20 +49,20 @@ public class EraseDataForCareProviderImpl implements EraseDataForCareProvider {
   /**
    * The implementation has the responsibility to erase all data in related services that belong to
    * the termination.
-   * <p>
-   * The first time the service is called with a specific termination, it will initialize to erase
-   * by checking what services that should be erased.
-   * <p>
-   * Any subsequent time the service is called with a specific termination, it will use the service
-   * provider to erase all data in each of the services (i.e. Webcert, Intygstjanst) that is not
-   * marked as erased.
-   * <p>
-   * If it is successful in erasing a service, it will mark the service as erased.
-   * <p>
-   * When all services has been erased the termination will receive a status update.
-   * <p>
-   * If for some reason the data has changed since exported, the erase will be cancelled. This is to
-   * make sure that the exported data has the latest changes for the certificates.
+   *
+   * <p>The first time the service is called with a specific termination, it will initialize to
+   * erase by checking what services that should be erased.
+   *
+   * <p>Any subsequent time the service is called with a specific termination, it will use the
+   * service provider to erase all data in each of the services (i.e. Webcert, Intygstjanst) that is
+   * not marked as erased.
+   *
+   * <p>If it is successful in erasing a service, it will mark the service as erased.
+   *
+   * <p>When all services has been erased the termination will receive a status update.
+   *
+   * <p>If for some reason the data has changed since exported, the erase will be cancelled. This is
+   * to make sure that the exported data has the latest changes for the certificates.
    *
    * @param termination Termination to erase data for.
    */
@@ -67,8 +86,7 @@ public class EraseDataForCareProviderImpl implements EraseDataForCareProvider {
     termination.startErase(
         services.stream()
             .map(eraseDataInService -> new EraseService(eraseDataInService.serviceId(), false))
-            .toList()
-    );
+            .toList());
   }
 
   private boolean verifyNoChangeSinceExport(Termination termination) {
@@ -76,7 +94,8 @@ public class EraseDataForCareProviderImpl implements EraseDataForCareProvider {
     if (!certificateSummary.equals(termination.export().certificateSummary())) {
       LOG.error(
           "Certificates for termination '{}' has changed since export. Exported '{}' and current '{}'. Erase will be cancelled!",
-          termination.terminationId().id(), termination.export().certificateSummary(),
+          termination.terminationId().id(),
+          termination.export().certificateSummary(),
           certificateSummary);
       return true;
     }
@@ -93,9 +112,9 @@ public class EraseDataForCareProviderImpl implements EraseDataForCareProvider {
     return eraseDataInService ->
         termination.erase().eraseServices().stream()
             .anyMatch(
-                eraseService -> eraseDataInService.serviceId().equals(eraseService.serviceId())
-                    && !eraseService.erased()
-            );
+                eraseService ->
+                    eraseDataInService.serviceId().equals(eraseService.serviceId())
+                        && !eraseService.erased());
   }
 
   private Consumer<EraseDataInService> eraseDataInService(Termination termination) {
@@ -103,14 +122,17 @@ public class EraseDataForCareProviderImpl implements EraseDataForCareProvider {
       try {
         eraseDataInService.erase(termination);
         termination.erased(eraseDataInService.serviceId());
-        LOG.info("Erased care provider for termination '{}' in service '{}'",
+        LOG.info(
+            "Erased care provider for termination '{}' in service '{}'",
             termination.terminationId().id(),
             eraseDataInService.serviceId().id());
       } catch (EraseException e) {
-        LOG.error(String.format(
-            "Could not erase care provider for termination '%s' in service '%s' due to message '%s'",
-            termination.terminationId().id(), eraseDataInService.serviceId().id(),
-            e.getMessage()));
+        LOG.error(
+            String.format(
+                "Could not erase care provider for termination '%s' in service '%s' due to message '%s'",
+                termination.terminationId().id(),
+                eraseDataInService.serviceId().id(),
+                e.getMessage()));
       }
     };
   }

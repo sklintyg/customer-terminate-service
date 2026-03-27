@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.testutil;
 
 import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.defaultTerminationEntity;
@@ -20,15 +38,14 @@ public class CertificateTestDataBuilder {
   public static String DEFAULT_CERTIFICATE_ID = UUID.randomUUID().toString();
   public static boolean DEFAULT_REVOKED = false;
   public static String DEFAULT_XML = "<xml></xml>";
-  public static String DEFAULT_XML_AS_BASE64 = Base64.getEncoder()
-      .encodeToString(DEFAULT_XML.getBytes(StandardCharsets.UTF_8));
+  public static String DEFAULT_XML_AS_BASE64 =
+      Base64.getEncoder().encodeToString(DEFAULT_XML.getBytes(StandardCharsets.UTF_8));
 
   public static Certificate defaultCertificate() {
     return new Certificate(
         new CertificateId(DEFAULT_CERTIFICATE_ID),
         DEFAULT_REVOKED,
-        new CertificateXML(DEFAULT_XML)
-    );
+        new CertificateXML(DEFAULT_XML));
   }
 
   public static CertificateEntity defaultCertificateEntity() {
@@ -37,8 +54,7 @@ public class CertificateTestDataBuilder {
         DEFAULT_CERTIFICATE_ID,
         DEFAULT_REVOKED,
         DEFAULT_XML_AS_BASE64,
-        defaultTerminationEntity()
-    );
+        defaultTerminationEntity());
   }
 
   public static CertificateEntity defaultCertificateEntity(String id) {
@@ -47,8 +63,7 @@ public class CertificateTestDataBuilder {
         id,
         DEFAULT_REVOKED,
         DEFAULT_XML_AS_BASE64,
-        defaultTerminationEntity()
-    );
+        defaultTerminationEntity());
   }
 
   public static List<Certificate> certificates(int total, int revokeCount) {
@@ -58,15 +73,13 @@ public class CertificateTestDataBuilder {
           new Certificate(
               new CertificateId(UUID.randomUUID().toString()),
               i >= (total - revokeCount),
-              new CertificateXML(DEFAULT_XML)
-          )
-      );
+              new CertificateXML(DEFAULT_XML)));
     }
     return certificates;
   }
 
-  public static List<CertificateEntity> certificateEntities(TerminationEntity terminationEntity,
-      int total, int revokeCount) {
+  public static List<CertificateEntity> certificateEntities(
+      TerminationEntity terminationEntity, int total, int revokeCount) {
     final List<CertificateEntity> certificates = new ArrayList<>();
     for (int i = 0; i < total; i++) {
       certificates.add(
@@ -75,9 +88,7 @@ public class CertificateTestDataBuilder {
               UUID.randomUUID().toString(),
               i >= (total - revokeCount),
               DEFAULT_XML_AS_BASE64,
-              terminationEntity
-          )
-      );
+              terminationEntity));
     }
     return certificates;
   }

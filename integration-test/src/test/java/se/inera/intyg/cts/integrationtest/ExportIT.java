@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2026 Inera AB (http://www.inera.se)
+ *
+ * This file is part of sklintyg (https://github.com/sklintyg).
+ *
+ * sklintyg is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * sklintyg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package se.inera.intyg.cts.integrationtest;
 
 import static io.restassured.RestAssured.given;
@@ -22,8 +40,8 @@ class ExportIT {
 
   @BeforeEach
   void setUp() {
-    RestAssured.baseURI = System.getProperty("integration.tests.baseUrl",
-        "http://cts.localtest.me");
+    RestAssured.baseURI =
+        System.getProperty("integration.tests.baseUrl", "http://cts.localtest.me");
     testData = TestData.create();
   }
 
@@ -35,10 +53,7 @@ class ExportIT {
 
   @Test
   void shallCollectCertificatesToExport() {
-    testData
-        .defaultTermination()
-        .certificates(10)
-        .setup();
+    testData.defaultTermination().certificates(10).setup();
 
     given()
         .when()
@@ -51,10 +66,7 @@ class ExportIT {
 
   @Test
   void shallCollectCertificatesToExportInMultipleBatches() {
-    testData
-        .defaultTermination()
-        .certificates(90)
-        .setup();
+    testData.defaultTermination().certificates(90).setup();
 
     for (int i = 0; i < 5; i++) {
       given()
@@ -63,8 +75,8 @@ class ExportIT {
           .then()
           .statusCode(HttpStatus.OK.value());
 
-      assertEquals(i == 4 ? 90 : (i + 1) * 20,
-          getCertificatesCount(testData.terminationIds().get(0)));
+      assertEquals(
+          i == 4 ? 90 : (i + 1) * 20, getCertificatesCount(testData.terminationIds().get(0)));
     }
   }
 
@@ -96,14 +108,10 @@ class ExportIT {
         .collectCertificateTexts()
         .setup();
 
-    given()
-        .when()
-        .post("/api/v1/exports/exportPackage")
-        .then()
-        .statusCode(HttpStatus.OK.value());
+    given().when().post("/api/v1/exports/exportPackage").then().statusCode(HttpStatus.OK.value());
 
-    assertTrue(getUploadedFileAsBytes().length > 0,
-        "Uploaded file should be larger than zero bytes");
+    assertTrue(
+        getUploadedFileAsBytes().length > 0, "Uploaded file should be larger than zero bytes");
   }
 
   @Test
@@ -116,16 +124,13 @@ class ExportIT {
         .collectCertificateTexts()
         .setup();
 
-    given()
-        .when()
-        .post("/api/v1/exports/exportPackage")
-        .then()
-        .statusCode(HttpStatus.OK.value());
+    given().when().post("/api/v1/exports/exportPackage").then().statusCode(HttpStatus.OK.value());
 
     final var uploadedFile = getUploadedFile();
     final var password = getPassword(testData.terminationIds().get(0));
 
-    assertDoesNotThrow(() -> extractUploadedFile(uploadedFile, password),
+    assertDoesNotThrow(
+        () -> extractUploadedFile(uploadedFile, password),
         () -> String.format("Could not extract uploaded file with password: %s", password));
   }
 
@@ -149,7 +154,8 @@ class ExportIT {
         .get("/testability/v1/terminations/{terminationId}/password")
         .then()
         .statusCode(HttpStatus.OK.value())
-        .extract().asString();
+        .extract()
+        .asString();
   }
 
   private void extractUploadedFile(File uploadedFile, String password) throws IOException {
@@ -178,7 +184,8 @@ class ExportIT {
         .then()
         .statusCode(HttpStatus.OK.value())
         .extract()
-        .response().as(Integer.class);
+        .response()
+        .as(Integer.class);
   }
 
   private Integer getCertificateTextsCount() {
@@ -189,6 +196,7 @@ class ExportIT {
         .then()
         .statusCode(HttpStatus.OK.value())
         .extract()
-        .response().as(Integer.class);
+        .response()
+        .as(Integer.class);
   }
 }
