@@ -24,7 +24,6 @@ import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.defaultTerm
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
@@ -32,18 +31,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.web.reactive.function.client.WebClient;
 import se.inera.intyg.cts.domain.model.Termination;
 
-@Execution(ExecutionMode.SAME_THREAD)
 class UploadPackageToSjutTest {
 
   private static MockWebServer mockSjut;
 
   private static final String SCHEME = "http";
-  private static final String BASE_URL = "127.0.0.1";
+  private static final String BASE_URL = "localhost";
   private static final String UPLOAD_ENDPOINT = "/api/v1/upload";
   private static final String SOURCE_SYSTEM = "intyg";
   private static final String RECEIPT_BASE_URL = "/api/v1/receipt/";
@@ -64,9 +60,7 @@ class UploadPackageToSjutTest {
   }
 
   @BeforeEach
-  void setUp() throws IOException, InterruptedException {
-    drainMockServerQueue();
-
+  void setUp() throws IOException {
     final var webClient = WebClient.create();
 
     uploadPackageToSjut =
@@ -94,7 +88,7 @@ class UploadPackageToSjutTest {
   void shallUploadFileToSjutWithFile() throws InterruptedException {
     mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
-    uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
+    uploadPackageToSjut.uploadPackage(termination, packageFile);
 
     final var requestBody = mockSjut.takeRequest().getBody().readUtf8();
     assertTrue(requestBody.contains(packageFile.getName()), requestBody);
@@ -104,7 +98,7 @@ class UploadPackageToSjutTest {
   void shallUploadFileToSjutWithHsaId() throws InterruptedException {
     mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
-    uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
+    uploadPackageToSjut.uploadPackage(termination, packageFile);
 
     final var requestBody = mockSjut.takeRequest().getBody().readUtf8();
     assertTrue(requestBody.contains(termination.careProvider().hsaId().id()), requestBody);
@@ -114,7 +108,7 @@ class UploadPackageToSjutTest {
   void shallUploadFileToSjutWithOrganizationNumber() throws InterruptedException {
     mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
-    uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
+    uploadPackageToSjut.uploadPackage(termination, packageFile);
 
     final var requestBody = mockSjut.takeRequest().getBody().readUtf8();
     assertTrue(
@@ -126,7 +120,7 @@ class UploadPackageToSjutTest {
   void shallUploadFileToSjutWithSourceSystem() throws InterruptedException {
     mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
-    uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
+    uploadPackageToSjut.uploadPackage(termination, packageFile);
 
     final var requestBody = mockSjut.takeRequest().getBody().readUtf8();
     assertTrue(requestBody.contains(SOURCE_SYSTEM), requestBody);
@@ -136,9 +130,10 @@ class UploadPackageToSjutTest {
   void shallUploadFileToSjutWithDelegatePnr() throws InterruptedException {
     mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
-    uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
+    uploadPackageToSjut.uploadPackage(termination, packageFile);
 
     final var requestBody = mockSjut.takeRequest().getBody().readUtf8();
+
     assertTrue(
         requestBody.contains(termination.export().organizationRepresentative().personId().id()),
         requestBody);
@@ -161,15 +156,8 @@ class UploadPackageToSjutTest {
     mockSjut.enqueue(new MockResponse().setBody("Upload failed!").setResponseCode(500));
 
     assertThrows(
-        RuntimeException.class,
-        () -> uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile));
+        RuntimeException.class, () -> uploadPackageToSjut.uploadPackage(termination, packageFile));
 
     mockSjut.takeRequest();
-  }
-
-  private static void drainMockServerQueue() throws InterruptedException {
-    while (mockSjut.takeRequest(100, TimeUnit.MILLISECONDS) != null) {
-      // discard unconsumed requests so test order does not matter
-    }
   }
 }

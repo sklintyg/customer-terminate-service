@@ -17,6 +17,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-restclient'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     implementation 'net.javacrumbs.shedlock:shedlock-spring'
@@ -37,9 +38,13 @@ dependencies {
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation "com.squareup.okhttp3:okhttp:${okhttpVersion}"
-    testImplementation "com.squareup.okhttp3:mockwebserver:${okhttpVersion}"
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+    testImplementation("com.squareup.okhttp3:okhttp:${okhttpVersion}") {
+        version { strictly okhttpVersion }
+    }
+    testImplementation("com.squareup.okhttp3:mockwebserver:${okhttpVersion}") {
+        version { strictly okhttpVersion }
+    }
     testImplementation 'com.h2database:h2'
 }
 
