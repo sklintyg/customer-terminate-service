@@ -32,7 +32,6 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
 
     runtimeOnly 'com.mysql:mysql-connector-j'
-    runtimeOnly 'org.springframework.boot:spring-boot-properties-migrator'
     runtimeOnly 'io.netty:netty-all'
     runtimeOnly 'org.eclipse.angus:jakarta.mail'
 
