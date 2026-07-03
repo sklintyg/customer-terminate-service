@@ -34,7 +34,7 @@ public class JobConfig {
   private static final String ENVIRONMENT = "cts";
 
   @Bean
-  public LockProvider lockProvider(RedisConnectionFactory jedisConnectionFactory) {
-    return new RedisLockProvider(jedisConnectionFactory, ENVIRONMENT);
+  public LockProvider lockProvider(RedisConnectionFactory redisConnectionFactory) {
+    return new RedisLockProvider(redisConnectionFactory, ENVIRONMENT);
   }
 }

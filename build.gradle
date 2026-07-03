@@ -1,13 +1,13 @@
 plugins {
     alias(libs.plugins.com.diffplug.spotless)
     alias(libs.plugins.com.github.ben.manes.versions)
-    alias(libs.plugins.org.cyclonedx.bom)
     alias(libs.plugins.org.sonarqube)
     alias(libs.plugins.org.springframework.boot)
 }
 
 ext {
-    okhttpVersion = '5.3.2'
+    okhttpVersion = '5.4.0'
+    restAssuredVersion = '5.5.7'
 }
 
 apply from: 'gradle/configureIntygBom.gradle'
@@ -106,8 +106,10 @@ subprojects {
         }
     }
 
-    tasks.matching { it.name == "cyclonedxDirectBom" }.configureEach { t ->
-        t.includeConfigs = ['^runtimeClasspath$']
+    pluginManager.withPlugin('org.cyclonedx.bom') {
+        tasks.named('cyclonedxDirectBom').configure { t ->
+            t.includeConfigs = ['^runtimeClasspath$']
+        }
     }
 }
 

@@ -39,6 +39,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SecondaryRow;
 
 @Data
 @AllArgsConstructor
@@ -46,6 +47,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 @Entity
 @Table(name = "termination")
 @SecondaryTable(name = "export", pkJoinColumns = @PrimaryKeyJoinColumn(name = "termination_id"))
+@SecondaryRow(table = "export", optional = false)
 public class TerminationEntity {
 
   @Id

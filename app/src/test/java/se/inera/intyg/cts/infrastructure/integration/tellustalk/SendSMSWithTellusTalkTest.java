@@ -21,8 +21,6 @@ package se.inera.intyg.cts.infrastructure.integration.tellustalk;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -36,6 +34,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import se.inera.intyg.cts.infrastructure.integration.tellustalk.dto.TellusTalkResponseDTO;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 @ExtendWith(MockitoExtension.class)
 class SendSMSWithTellusTalkTest {
@@ -75,15 +75,15 @@ class SendSMSWithTellusTalkTest {
   }
 
   @Test
-  void sendSMS() throws JsonProcessingException, InterruptedException {
+  void sendSMS() throws JacksonException, InterruptedException {
     ReflectionTestUtils.setField(sendSMS, "smsOriginatorText", "Inera AB");
     String phoneNumber = "sms:+46701234567";
     String message = "Hej hej";
     TellusTalkResponseDTO smsResponseDTO = new TellusTalkResponseDTO("JobId", "logHref");
-    ObjectMapper objectMapper = new ObjectMapper();
+    final var jsonMapper = JsonMapper.builder().build();
     mockBackEnd.enqueue(
         new MockResponse()
-            .setBody(objectMapper.writeValueAsString(smsResponseDTO))
+            .setBody(jsonMapper.writeValueAsString(smsResponseDTO))
             .addHeader("Content-Type", "application/json"));
 
     TellusTalkResponseDTO response = sendSMS.sendSMS(phoneNumber, message);

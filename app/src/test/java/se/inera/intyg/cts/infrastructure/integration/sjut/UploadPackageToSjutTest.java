@@ -61,7 +61,7 @@ class UploadPackageToSjutTest {
 
   @BeforeEach
   void setUp() throws IOException {
-    WebClient webClient = WebClient.create();
+    final var webClient = WebClient.create();
 
     uploadPackageToSjut =
         new UploadPackageToSjut(
@@ -88,7 +88,7 @@ class UploadPackageToSjutTest {
   void shallUploadFileToSjutWithFile() throws InterruptedException {
     mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
-    uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
+    uploadPackageToSjut.uploadPackage(termination, packageFile);
 
     final var requestBody = mockSjut.takeRequest().getBody().readUtf8();
     assertTrue(requestBody.contains(packageFile.getName()), requestBody);
@@ -98,7 +98,7 @@ class UploadPackageToSjutTest {
   void shallUploadFileToSjutWithHsaId() throws InterruptedException {
     mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
-    uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
+    uploadPackageToSjut.uploadPackage(termination, packageFile);
 
     final var requestBody = mockSjut.takeRequest().getBody().readUtf8();
     assertTrue(requestBody.contains(termination.careProvider().hsaId().id()), requestBody);
@@ -108,7 +108,7 @@ class UploadPackageToSjutTest {
   void shallUploadFileToSjutWithOrganizationNumber() throws InterruptedException {
     mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
-    uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
+    uploadPackageToSjut.uploadPackage(termination, packageFile);
 
     final var requestBody = mockSjut.takeRequest().getBody().readUtf8();
     assertTrue(
@@ -120,7 +120,7 @@ class UploadPackageToSjutTest {
   void shallUploadFileToSjutWithSourceSystem() throws InterruptedException {
     mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
-    uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
+    uploadPackageToSjut.uploadPackage(termination, packageFile);
 
     final var requestBody = mockSjut.takeRequest().getBody().readUtf8();
     assertTrue(requestBody.contains(SOURCE_SYSTEM), requestBody);
@@ -130,9 +130,10 @@ class UploadPackageToSjutTest {
   void shallUploadFileToSjutWithDelegatePnr() throws InterruptedException {
     mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
-    uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile);
+    uploadPackageToSjut.uploadPackage(termination, packageFile);
 
     final var requestBody = mockSjut.takeRequest().getBody().readUtf8();
+
     assertTrue(
         requestBody.contains(termination.export().organizationRepresentative().personId().id()),
         requestBody);
@@ -140,8 +141,6 @@ class UploadPackageToSjutTest {
 
   @Test
   void shallUploadFileToSjutWithReceiptUrl() throws InterruptedException {
-    mockSjut.takeRequest();
-
     mockSjut.enqueue(new MockResponse().setBody("Package has been uploaded!"));
 
     uploadPackageToSjut.uploadPackage(termination, packageFile);
@@ -153,11 +152,12 @@ class UploadPackageToSjutTest {
   }
 
   @Test
-  void shallThrowExceptionIfUploadFailed() {
+  void shallThrowExceptionIfUploadFailed() throws InterruptedException {
     mockSjut.enqueue(new MockResponse().setBody("Upload failed!").setResponseCode(500));
 
     assertThrows(
-        RuntimeException.class,
-        () -> uploadPackageToSjut.uploadPackage(defaultTermination(), packageFile));
+        RuntimeException.class, () -> uploadPackageToSjut.uploadPackage(termination, packageFile));
+
+    mockSjut.takeRequest();
   }
 }

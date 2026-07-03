@@ -21,14 +21,15 @@ package se.inera.intyg.cts.infrastructure.integration.sjut;
 import static se.inera.intyg.cts.logging.MdcLogConstants.EVENT_TYPE_CHANGE;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import org.hibernate.service.spi.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
@@ -47,7 +48,6 @@ public class UploadPackageToSjut implements UploadPackage {
 
   private static final Logger LOG = LoggerFactory.getLogger(UploadPackageToSjut.class);
 
-  public static final String FILE_PREFIX = "file:";
   public static final String FILE_PART = "file";
   public static final String METADATA_PART = "metadata";
 
@@ -79,30 +79,34 @@ public class UploadPackageToSjut implements UploadPackage {
   @Override
   @PerformanceLogging(eventAction = "upload-package", eventType = EVENT_TYPE_CHANGE)
   public void uploadPackage(Termination termination, File packageToUpload) {
-    final var resource = getResource(packageToUpload);
-    final var packageMetadata = getPackageMetadata(termination);
+    try (final var inputStream = Files.newInputStream(packageToUpload.toPath())) {
+      final var resource = new InputStreamResource(inputStream);
+      final var packageMetadata = getPackageMetadata(termination);
 
-    final var multipartBodyBuilder = new MultipartBodyBuilder();
-    multipartBodyBuilder.part(FILE_PART, resource);
-    multipartBodyBuilder.part(METADATA_PART, packageMetadata);
+      final var multipartBodyBuilder = new MultipartBodyBuilder();
+      multipartBodyBuilder
+          .part(FILE_PART, resource)
+          .filename(packageToUpload.getName())
+          .headers(headers -> headers.setContentLength(packageToUpload.length()));
+      multipartBodyBuilder.part(METADATA_PART, packageMetadata);
 
-    final var clientReponse =
-        webClient
-            .post()
-            .uri(this::getUri)
-            .body(BodyInserters.fromMultipartData(multipartBodyBuilder.build()))
-            .exchangeToMono(clientResponse -> handleResponse(termination, clientResponse))
-            .share()
-            .block();
+      final var clientResponse =
+          webClient
+              .post()
+              .uri(this::getUri)
+              .body(BodyInserters.fromMultipartData(multipartBodyBuilder.build()))
+              .exchangeToMono(response -> handleResponse(termination, response))
+              .block();
 
-    LOG.info(
-        "File for termination '{}' was uploaded to Sjut with result '{}'",
-        termination.terminationId().id(),
-        clientReponse);
-  }
-
-  private Resource getResource(File packageToUpload) {
-    return new DefaultResourceLoader().getResource(FILE_PREFIX + packageToUpload.getAbsolutePath());
+      LOG.info(
+          "File for termination '{}' was uploaded to Sjut with result '{}'",
+          termination.terminationId().id(),
+          clientResponse);
+    } catch (IOException ex) {
+      throw new ServiceException(
+          String.format("Could not read package file '%s'.", packageToUpload.getAbsolutePath()),
+          ex);
+    }
   }
 
   private PackageMetadata getPackageMetadata(Termination termination) {
@@ -133,6 +137,7 @@ public class UploadPackageToSjut implements UploadPackage {
         String.format(
             "Could not upload file for termination '%s' to Sjut. Received status code '%s'.",
             termination.terminationId().id(), clientResponse.statusCode());
+
     LOG.error(message);
     throw new ServiceException(message);
   }
