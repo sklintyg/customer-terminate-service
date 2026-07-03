@@ -18,11 +18,13 @@
  */
 package se.inera.intyg.cts.infrastructure.persistence;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static se.inera.intyg.cts.infrastructure.persistence.entity.TerminationEntityMapper.toEntity;
 import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.DEFAULT_TERMINATION_ID;
 import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.defaultTermination;
+import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.defaultTerminationBuilder;
 import static se.inera.intyg.cts.testutil.TerminationTestDataBuilder.defaultTerminationEntity;
 
 import java.util.Arrays;
@@ -31,6 +33,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import se.inera.intyg.cts.domain.model.Password;
 import se.inera.intyg.cts.domain.model.Termination;
 import se.inera.intyg.cts.domain.model.TerminationId;
 import se.inera.intyg.cts.domain.model.TerminationStatus;
@@ -54,6 +57,29 @@ class JpaTerminationRepositoryTest {
   void shallStoreNewTermination() {
     jpaTerminationRepository.store(termination);
     assertEquals(1, terminationEntityRepository.count());
+  }
+
+  @Test
+  void shallFindTerminationByTerminationIdAfterExportUpdate() {
+    final var terminationToExport =
+        defaultTerminationBuilder()
+            .terminationId(DEFAULT_TERMINATION_ID)
+            .status(TerminationStatus.COLLECTING_CERTIFICATE_TEXTS_COMPLETED)
+            .create();
+
+    jpaTerminationRepository.store(terminationToExport);
+    final var stored =
+        jpaTerminationRepository
+            .findByTerminationId(new TerminationId(DEFAULT_TERMINATION_ID))
+            .orElseThrow();
+    stored.exported(new Password("exported-password"));
+
+    jpaTerminationRepository.store(stored);
+
+    assertDoesNotThrow(
+        () ->
+            jpaTerminationRepository.findByTerminationId(
+                new TerminationId(DEFAULT_TERMINATION_ID)));
   }
 
   @Test
