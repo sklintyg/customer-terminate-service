@@ -28,7 +28,7 @@ service.
 
 **Intygsstatistik** - Erase related data to terminated customer.
 
-**Privatlakarportal** - Erase related data to terminated customer.
+**Private Practitioner Service** - Erase related data to terminated customer.
 
 **SMTP Service** - Send emails to organisation representatives.
 
