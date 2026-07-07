@@ -38,52 +38,44 @@ import se.inera.intyg.cts.domain.service.EraseException;
 
 class EraseDataInPrivatePractitionerTest {
 
-  private static MockWebServer mockPrivatlakarportal;
-
-  private static final String SCHEME = "http";
-  private static final String BASE_URL = "localhost";
-  private static final String ERASE_ENDPOINT = "/internalapi/privatepractitioner/certificates";
+  private static MockWebServer mockPrivatePractitionerService;
 
   private EraseDataInPrivatePractitioner eraseDataInPrivatePractitioner;
   private Termination termination;
 
   @BeforeAll
   static void beforeAll() throws IOException {
-    mockPrivatlakarportal = new MockWebServer();
+    mockPrivatePractitionerService = new MockWebServer();
     ch.qos.logback.classic.Logger rootLogger =
         (ch.qos.logback.classic.Logger)
             LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
     rootLogger.setLevel(Level.toLevel("info"));
-    mockPrivatlakarportal.start();
+    mockPrivatePractitionerService.start();
   }
 
   @AfterAll
   static void afterAll() throws IOException {
-    mockPrivatlakarportal.shutdown();
+    mockPrivatePractitionerService.shutdown();
   }
 
   @BeforeEach
-  void setUp() throws IOException {
+  void setUp() {
     final var webClient = WebClient.create();
-
-    eraseDataInPrivatePractitioner =
-        new EraseDataInPrivatePractitioner(
-            webClient,
-            SCHEME,
-            BASE_URL,
-            Integer.toString(mockPrivatlakarportal.getPort()),
-            ERASE_ENDPOINT);
+    final var mockServerUrl =
+        mockPrivatePractitionerService.url("/internalapi/privatepractitioner/").toString();
+    eraseDataInPrivatePractitioner = new EraseDataInPrivatePractitioner(webClient, mockServerUrl);
 
     termination = defaultTermination();
   }
 
   @Test
-  void shallCallPrivatlakarportalToEraseCareProvider() throws InterruptedException {
-    mockPrivatlakarportal.enqueue(new MockResponse());
+  void shallCallPrivatePractitionerServiceToEraseCareProvider() throws InterruptedException {
+    mockPrivatePractitionerService.enqueue(new MockResponse());
 
     eraseDataInPrivatePractitioner.erase(termination);
 
-    final var pathSegments = mockPrivatlakarportal.takeRequest().getRequestUrl().toString();
+    final var pathSegments =
+        mockPrivatePractitionerService.takeRequest().getRequestUrl().toString();
 
     assertTrue(
         pathSegments.contains(termination.careProvider().hsaId().id()),
@@ -95,13 +87,13 @@ class EraseDataInPrivatePractitionerTest {
 
   @Test
   void shallThrowEraseExceptionIfEraseFailed() {
-    mockPrivatlakarportal.enqueue(new MockResponse().setResponseCode(500));
+    mockPrivatePractitionerService.enqueue(new MockResponse().setResponseCode(500));
 
     assertThrows(EraseException.class, () -> eraseDataInPrivatePractitioner.erase(termination));
   }
 
   @Test
   void shallReturnWebcertAsServiceId() {
-    assertEquals("privatlakarportal", eraseDataInPrivatePractitioner.serviceId().id());
+    assertEquals("pps", eraseDataInPrivatePractitioner.serviceId().id());
   }
 }
